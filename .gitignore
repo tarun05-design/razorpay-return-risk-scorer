@@ -1,0 +1,26 @@
+# Byte-compiled / cache files
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Environments
+venv/
+.venv/
+env/
+.env
+
+# Raw and Processed Datasets (Not committed to Git)
+# Raw Olist dataset (~90MB, CC BY-NC-SA 4.0) is downloaded via scripts/download_data.py
+data/raw/
+data/processed/
+data/*.zip
+data/*.csv
+*.joblib
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

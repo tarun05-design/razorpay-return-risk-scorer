@@ -1,0 +1,23 @@
+{
+  "order_purchase_timestamp": "2018-06-15 14:30:00",
+  "order_estimated_delivery_date": "2018-07-10 00:00:00",
+  "customer_state": "SP",
+  "seller_id": "brand_new_seller_xyz",
+  "seller_state": "RS",
+  "product_category_name_english": "furniture_decor",
+  "payment_type": "credit_card",
+  "n_items": 6,
+  "n_distinct_products": 4,
+  "n_distinct_sellers": 2,
+  "total_price": 890.0,
+  "total_freight": 210.0,
+  "avg_price": 148.3,
+  "max_price": 300.0,
+  "avg_weight_g": 8000,
+  "avg_photos_qty": 1,
+  "avg_desc_length": 200,
+  "avg_name_length": 40,
+  "n_payment_installments": 10,
+  "total_payment_value": 890.0,
+  "n_payment_methods": 1
+}

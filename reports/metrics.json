@@ -1,0 +1,113 @@
+{
+  "data_audit": {
+    "n_labeled_orders": 88554,
+    "base_rate_return_risk": 0.1455,
+    "label_source_counts": {
+      "high_review": 75666,
+      "low_review": 12263,
+      "canceled": 625
+    },
+    "proxy_label_validation": {
+      "low_score_n": 14575,
+      "low_score_keyword_hits": 3029,
+      "low_score_keyword_rate": 0.2078,
+      "high_score_n": 76470,
+      "high_score_keyword_hits": 279,
+      "high_score_keyword_rate": 0.0036,
+      "enrichment_ratio": 56.96
+    }
+  },
+  "split": {
+    "train_n": 70843,
+    "test_n": 17711,
+    "cutoff_date": "2018-05-29 18:09:04",
+    "train_base_rate": 0.1538,
+    "test_base_rate": 0.1123
+  },
+  "rank_metrics_at_test": {
+    "roc_auc": 0.6472,
+    "pr_auc": 0.27,
+    "base_rate": 0.1123
+  },
+  "metrics_at_default_threshold_0.5": {
+    "threshold": 0.5,
+    "precision": 0.6385,
+    "recall": 0.0835,
+    "f1": 0.1476,
+    "n_flagged": 260,
+    "true_positives": 166,
+    "false_positives": 94,
+    "false_negatives": 1823,
+    "true_negatives": 15628
+  },
+  "metrics_at_cost_optimal_threshold": {
+    "threshold": 0.598,
+    "precision": 0.7862,
+    "recall": 0.0573,
+    "f1": 0.1068,
+    "n_flagged": 145,
+    "true_positives": 114,
+    "false_positives": 31,
+    "false_negatives": 1875,
+    "true_negatives": 15691
+  },
+  "cost_model_assumptions": {
+    "intervention_cost_per_flag_BRL": 25.0,
+    "intervention_success_rate": 0.3,
+    "loss_model": "2x total_freight (reverse logistics) + 15% of total_price (restock/margin)"
+  },
+  "savings_vs_flag_nothing_BRL": -89.55,
+  "breakeven_intervention_success_rate": 0.35,
+  "top_10_features": [
+    {
+      "feature": "n_items",
+      "importance_mean": 0.04937638440656386,
+      "importance_std": 0.004170327505231452
+    },
+    {
+      "feature": "seller_prior_bad_rate",
+      "importance_mean": 0.02476584924510034,
+      "importance_std": 0.001920490750790494
+    },
+    {
+      "feature": "n_distinct_sellers",
+      "importance_mean": 0.019995278093339456,
+      "importance_std": 0.0016420217590595815
+    },
+    {
+      "feature": "promised_delivery_days",
+      "importance_mean": 0.004338768117377175,
+      "importance_std": 0.00044597114355357574
+    },
+    {
+      "feature": "total_freight",
+      "importance_mean": 0.004259493454583985,
+      "importance_std": 0.0011354646541976003
+    },
+    {
+      "feature": "product_category_name_english",
+      "importance_mean": 0.0037972025624300187,
+      "importance_std": 0.0019411492276876126
+    },
+    {
+      "feature": "customer_state",
+      "importance_mean": 0.0019501918016291326,
+      "importance_std": 0.0016278627896684763
+    },
+    {
+      "feature": "avg_weight_g",
+      "importance_mean": 0.0014117679702806696,
+      "importance_std": 0.0006330529196634227
+    },
+    {
+      "feature": "seller_prior_n_orders",
+      "importance_mean": 0.0010096027304992983,
+      "importance_std": 0.0013475919832173066
+    },
+    {
+      "feature": "total_payment_value",
+      "importance_mean": 0.0009110267303055845,
+      "importance_std": 0.0005158501155461589
+    }
+  ]
+}

@@ -147,16 +147,9 @@ All figures: `reports/figures/` (PR curve, ROC curve, calibration curve, cost sw
 │   ├── test_api.py           # FastAPI routes & integration tests
 │   └── test_pipeline.py      # Label logic, proxy validation & leakage guards
 ├── reports/                  # metrics.json, threshold_sweep.csv, figures/
-├── PITCH_VIDEO_GUIDE.md      # 5-minute pitch video script & panel defense Q&A
 ├── sample_order.json         # Example real-time order payload
 └── architecture.png          # System architecture diagram
 ```
-
----
-
-## 🎥 Pitch Video Submission Guide
-
-For the 5-minute video deliverable, refer to **[`PITCH_VIDEO_GUIDE.md`](PITCH_VIDEO_GUIDE.md)** for a minute-by-minute script, slide deck structure, visual cues, and panel defense preparation.
 
 ---
 

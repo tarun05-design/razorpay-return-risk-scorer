@@ -9,7 +9,7 @@
 **Track 02 — AI Risk Manager** · Razorpay AI Buildathon  
 *Stop the merchant losing money to fraud, returns and chargebacks.*
 
-A production-grade verifier that scores an e-commerce order's probability of turning into a return/refund/cancellation-style loss, at order time — with a measured precision/recall on a held-out test set, an honest false-positive cost sensitivity model, and an automated **Razorpay Magic Checkout** policy action engine.
+A production-oriented verifier that scores an e-commerce order's probability of turning into a return/refund/cancellation-style loss, at order time — with a measured precision/recall on a held-out test set, an honest false-positive cost sensitivity model, and an automated **Razorpay Magic Checkout** policy action engine.
 
 ![architecture](architecture.png)
 
@@ -42,22 +42,22 @@ This project directly bridges raw probability scores to concrete, bounded checko
 | Risk Tier | Score Range | Magic Checkout Action | Financial Rationale |
 |---|---|---|---|
 | **Low** | `< 0.30` | `APPROVE_COD` | 1-click frictionless checkout. Zero barrier for safe orders. |
-| **Moderate** | `0.30 – 0.50` | `NUDGE_PREPAID_UPI` | Offer instant ₹50 / 5% UPI discount to convert COD to prepaid, eliminating RTO risk before shipping. |
-| **Elevated** | `0.50 – 0.60` | `REQUIRE_WHATSAPP_CONFIRMATION` | Trigger automated WhatsApp/SMS interactive address & buyer confirmation. |
-| **Critical** | `> 0.60` | `DISABLE_COD_PREPAID_ONLY` | Restrict to online prepayment to save merchant from 2× freight loss and inventory lockup. |
+| **Moderate** | `0.30 – <0.50` | `NUDGE_PREPAID_UPI` | Offer instant ₹50 / 5% UPI discount to convert COD to prepaid, eliminating RTO risk before shipping. |
+| **Elevated** | `0.50 – <0.65` | `REQUIRE_WHATSAPP_CONFIRMATION` | Trigger automated WhatsApp/SMS interactive address & buyer confirmation. |
+| **Critical** | `>= 0.65` | `DISABLE_COD_PREPAID_ONLY` | Restrict to online prepayment to save merchant from 2× freight loss and inventory lockup. |
 
 ---
 
 ## 🔍 The Core Problem This Project Actually Solves
 
-Olist's public dataset (100K real Brazilian e-commerce orders, 2016–2018) has **no "returned" flag**. Most public projects using this dataset predict customer churn or LTV, not returns — because *the label doesn't exist*. Building a return-risk scorer here means either faking a label or being explicit about a proxy and proving it's not noise. This repo does the latter.
+Olist's public dataset (100K real Brazilian e-commerce orders, 2016–2018) has **no "returned" flag**. Most public projects using this dataset predict customer churn or LTV, not returns — because *the label doesn't exist*. Building a return-risk scorer here requires being explicit about a proxy definition of return-risk and proving it's not noise. This repo constructs and validates that proxy label.
 
-### Label Definition (The Design Decision That Matters Most)
+### Proxy Label Definition (The Design Decision That Matters Most)
 
 | Class | Rule |
 |---|---|
-| **Positive (return-risk)** | `order_status == 'canceled'`, OR a delivered order with `review_score ∈ {1, 2}` |
-| **Negative** | delivered order with `review_score ∈ {4, 5}` |
+| **Positive (proxy return-risk)** | `order_status == 'canceled'`, OR a delivered order with `review_score ∈ {1, 2}` |
+| **Negative (proxy low-risk)** | delivered order with `review_score ∈ {4, 5}` |
 | **Dropped** | `review_score == 3` (neutral — forcing it into a class would poison the label), delivered orders with no review, non-terminal statuses (shipped/processing/etc. — outcome not yet known) |
 
 ### 57× NLP Validation (Evidence, Not Assertion)
@@ -81,10 +81,10 @@ Full breakdown: `reports/metrics.json → data_audit.proxy_label_validation`.
 
 ## 🚀 Model Architecture & Latency Benchmark
 
-We use `sklearn.HistGradientBoostingClassifier` to score 21 pre-order tabular fields.
+We use `sklearn.HistGradientBoostingClassifier` to score 30 pre-order tabular features (26 numeric + 4 categorical).
 
 ### Why Trees Over LLMs for Real-Time Checkout?
-Razorpay's checkout latency budget is **< 10ms**. Tabular gradient-boosted trees provide calibrated probabilities with sub-millisecond execution, while an LLM would introduce 800ms+ network latency and non-deterministic hallucination risk.
+For this project, we use a <10ms checkout-latency target as a benchmark context. Our measured scorer latency is substantially below that target. Tabular gradient-boosted trees provide calibrated probabilities with sub-millisecond execution, while an LLM would introduce 800ms+ network latency and non-deterministic hallucination risk.
 
 Run the latency benchmark tool:
 ```bash
@@ -95,7 +95,7 @@ python scripts/benchmark.py --n-runs 3000
 - **Mean Latency**: `0.85 ms` (Single Core)
 - **p95 Latency**: `1.20 ms`
 - **Throughput**: `1,170+ orders/sec`
-- **Result**: **10× headroom** under Razorpay's 10ms checkout budget.
+- **Result**: **10× headroom** under the <10ms benchmark target.
 
 ---
 
@@ -115,7 +115,7 @@ At the **Cost-Optimal Threshold (0.598)**:
 
 Per-order potential loss: `2 × total_freight` (reverse logistics) + `15% × total_price` (restock/margin loss). Intervention cost: ₹25 / flag.
 
-- At a conservative **30% intervention success rate**, the cost-optimal threshold nets **−R$89.55** vs. flagging nothing on the test set (breakeven).
+- At a conservative **30% intervention success rate**, the cost-optimal threshold nets **−₹89.55** vs. flagging nothing on the test set (breakeven).
 - Our sensitivity sweep (`reports/success_rate_sensitivity.csv`) shows the model becomes **net-positive once intervention effectiveness passes ~35%** (e.g. saving ₹4,800+ on test batch with WhatsApp verification or UPI discounts).
 
 All figures: `reports/figures/` (PR curve, ROC curve, calibration curve, cost sweep, sensitivity curve).

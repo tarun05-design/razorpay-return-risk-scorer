@@ -87,7 +87,7 @@ def health():
         "status": "ok",
         "track": "Track 02 — AI Risk Manager",
         "model_loaded": _scorer is not None,
-        "features_supported": 21,
+        "features_supported": 30,
     }
 
 

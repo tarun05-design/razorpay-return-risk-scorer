@@ -87,21 +87,23 @@ def _load_scorer() -> None:
 
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/checkout", response_class=HTMLResponse)
+def get_checkout():
+    """Serves the dynamic Magic Checkout page — demonstrates risk-adaptive buyer experience."""
+    template_path = TEMPLATES_DIR / "checkout.html"
+    if not template_path.exists():
+        template_path = ROOT / "index.html"
+    if not template_path.exists():
+        raise HTTPException(404, "Checkout template not found")
+    return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 def get_dashboard():
     """Serves the interactive Razorpay Risk Intelligence & Magic Checkout Console."""
     template_path = TEMPLATES_DIR / "dashboard.html"
     if not template_path.exists():
         raise HTTPException(404, "Dashboard template not found")
-    return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
-
-
-@app.get("/checkout", response_class=HTMLResponse)
-def get_checkout():
-    """Serves the dynamic Magic Checkout page — demonstrates risk-adaptive buyer experience."""
-    template_path = TEMPLATES_DIR / "checkout.html"
-    if not template_path.exists():
-        raise HTTPException(404, "Checkout template not found")
     return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
 
 

@@ -30,10 +30,21 @@ def test_health_endpoint(client):
 
 
 def test_dashboard_endpoint(client):
-    response = client.get("/")
+    response = client.get("/dashboard")
     assert response.status_code == 200
     assert "Razorpay Return-Risk Intelligence" in response.text
     assert "text/html" in response.headers["content-type"]
+
+
+def test_checkout_endpoint(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "Checkout" in response.text
+    assert "text/html" in response.headers["content-type"]
+
+    response_co = client.get("/checkout")
+    assert response_co.status_code == 200
+    assert "Checkout" in response_co.text
 
 
 def test_score_endpoint(client):

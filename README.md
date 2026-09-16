@@ -57,56 +57,6 @@ The checkout page demonstrates how our AI engine acts behind the scenes across 4
 
 ---
 
-## 🌐 Cloud Deployment Guide (How to Deploy Live)
-
-### Option 1: Deploy Checkout on Vercel (Instant Static Site — Recommended)
-The checkout page is fully self-contained as a high-performance static web app with responsive UI, dynamic profile switchers, and product imagery:
-
-1. Go to **[vercel.com](https://vercel.com)** and log in with your GitHub account.
-2. Click **"Add New..."** ➔ **"Project"**.
-3. Select **`tarun05-design/razorpay-return-risk-scorer`**.
-4. Vercel automatically detects the static setup (`index.html` + `vercel.json`):
-   - **Framework Preset**: *Other*
-   - **Root Directory**: `./`
-5. Click **"Deploy"**.
-6. Within **~15 seconds**, your live public URL is active:
-   - `https://<your-project>.vercel.app` (or `/checkout`)
-
----
-
-### Option 2: Full Stack Python Service on Render (Free)
-[Render](https://render.com) offers free web service hosting directly from your GitHub repository.
-
-1. **Sign up / Log in** at [render.com](https://render.com).
-2. Click **New +** ➔ **Web Service**.
-3. Connect your GitHub account and select this repository: `tarun05-design/razorpay-return-risk-scorer`.
-4. Render automatically reads our included **`render.yaml`** blueprint!
-   - **Runtime**: `Python`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn return_risk.api:app --app-dir src --host 0.0.0.0 --port $PORT`
-5. Click **Create Web Service**. Within ~2 minutes, your live URL will be active (e.g. `https://razorpay-return-risk-scorer.onrender.com/checkout`).
-
----
-
-### Option 2: Deploy on Railway
-1. Go to [railway.app](https://railway.app) and click **Start a New Project**.
-2. Select **Deploy from GitHub repo** and pick `razorpay-return-risk-scorer`.
-3. Railway automatically detects the included **`Procfile`** and starts the FastAPI service.
-4. Under your project settings, click **Generate Domain** to get your public HTTPS link.
-
----
-
-### Option 3: Instant Live Link via Local Tunnel (Zero Setup)
-If you want to share a live working link with interviewers or test on your mobile device right away while running locally:
-
-```bash
-# In your terminal (with server running on port 8000):
-npx localtunnel --port 8000
-```
-This gives you an instant public HTTPS URL like `https://quick-checkout-demo.loca.lt/checkout`.
-
----
-
 ## 🔍 The Core Problem This Project Actually Solves
 
 Olist's public dataset (100K real Brazilian e-commerce orders, 2016–2018) has **no "returned" flag**. Most public projects using this dataset predict customer churn or LTV, not returns — because *the label doesn't exist*. Building a return-risk scorer here requires being explicit about a proxy definition of return-risk and proving it's not noise. This repo constructs and validates that proxy label.

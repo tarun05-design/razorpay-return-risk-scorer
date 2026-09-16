@@ -55,6 +55,35 @@ The checkout page demonstrates how our AI engine acts behind the scenes across 4
 | **Elevated** | `0.50 – <0.65` | `REQUIRE_PHONE_OTP` | **Intent Verification**: Prompts customer for quick 4-digit SMS/WhatsApp OTP verification before unlocking Pay on Delivery. |
 | **Critical** | `>= 0.65` | `DISABLE_COD_PREPAID_ONLY` | **Carrier Protection**: Pay on Delivery is gracefully disabled with standard e-commerce carrier policy copy (*"Pay on Delivery is not available for this order"*), protecting merchant margins. |
 
+---
+
+## 🌐 Cloud Deployment Guide (How to Deploy Live)
+
+### Option 1: Deploy on Render (Recommended & Free)
+[Render](https://render.com) offers free web service hosting directly from your GitHub repository.
+
+1. **Sign up / Log in** at [render.com](https://render.com).
+2. Click **New +** ➔ **Web Service**.
+3. Connect your GitHub account and select this repository: `tarun05-design/razorpay-return-risk-scorer`.
+4. Render automatically reads our included **`render.yaml`** blueprint!
+   - **Runtime**: `Python`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn return_risk.api:app --app-dir src --host 0.0.0.0 --port $PORT`
+5. Click **Create Web Service**. Within ~2 minutes, your live URL will be active (e.g. `https://razorpay-return-risk-scorer.onrender.com/checkout`).
+
+---
+
+### Option 2: Deploy on Railway
+1. Go to [railway.app](https://railway.app) and click **Start a New Project**.
+2. Select **Deploy from GitHub repo** and pick `razorpay-return-risk-scorer`.
+3. Railway automatically detects the included **`Procfile`** and starts the FastAPI service.
+4. Under your project settings, click **Generate Domain** to get your public HTTPS link.
+
+---
+
+### Option 3: Instant Live Link via Local Tunnel (Zero Setup)
+If you want to share a live working link with interviewers or test on your mobile device right away while running locally:
+
 ```bash
 # In your terminal (with server running on port 8000):
 npx localtunnel --port 8000

@@ -67,14 +67,23 @@ class OrderRequest(BaseModel):
     threshold: Optional[float] = None
 
 
+def _get_scorer() -> Optional[ReturnRiskScorer]:
+    global _scorer
+    if _scorer is None:
+        try:
+            _scorer = ReturnRiskScorer(
+                model_path=PROCESSED_DIR / "model.joblib",
+                seller_store_path=PROCESSED_DIR / "seller_prior_snapshot.csv",
+                reference_stats_path=PROCESSED_DIR / "reference_stats.json",
+            )
+        except Exception as e:
+            print(f"Notice: Model loading deferred or unavailable: {e}")
+    return _scorer
+
+
 @app.on_event("startup")
 def _load_scorer() -> None:
-    global _scorer
-    _scorer = ReturnRiskScorer(
-        model_path=PROCESSED_DIR / "model.joblib",
-        seller_store_path=PROCESSED_DIR / "seller_prior_snapshot.csv",
-        reference_stats_path=PROCESSED_DIR / "reference_stats.json",
-    )
+    _get_scorer()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -98,10 +107,11 @@ def get_checkout():
 
 @app.get("/health")
 def health():
+    scorer = _get_scorer()
     return {
         "status": "ok",
         "track": "Track 02 — AI Risk Manager",
-        "model_loaded": _scorer is not None,
+        "model_loaded": scorer is not None,
         "features_supported": 30,
     }
 
@@ -118,14 +128,16 @@ def get_metrics_summary():
 
 @app.post("/score")
 def score_order(order: OrderRequest):
-    if _scorer is None:
+    scorer = _get_scorer()
+    if scorer is None:
         raise HTTPException(503, "Model not loaded yet")
     payload = order.model_dump(exclude={"threshold"})
-    threshold = order.threshold if order.threshold is not None else _scorer.reference_stats.get(
+    threshold = order.threshold if order.threshold is not None else scorer.reference_stats.get(
         "cost_optimal_threshold", 0.598
     )
     try:
-        result = _scorer.score(payload, threshold=threshold)
+        result = scorer.score(payload, threshold=threshold)
     except ValueError as e:
         raise HTTPException(422, str(e))
     return result.as_dict()
+

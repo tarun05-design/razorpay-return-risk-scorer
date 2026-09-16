@@ -1,6 +1,7 @@
 # Return-Risk Scorer & Magic Checkout Policy Engine
 
 [![Track 02: AI Risk Manager](https://img.shields.io/badge/Razorpay%20AI%20Buildathon-Track%2002%3A%20AI%20Risk%20Manager-0066FF?style=flat-square)](https://razorpay.com/buildathon/)
+[![Live Checkout Demo](https://img.shields.io/badge/Live%20Checkout-Demo-00C7B7?style=flat-square&logo=vercel)](https://razorpay-return-risk-scorer.vercel.app/)
 [![Defense Only](https://img.shields.io/badge/Architecture-Defense%20Only-10b981?style=flat-square)]()
 [![Inference Latency](https://img.shields.io/badge/Latency-%3C%201ms%20(Sub--ms)-38bdf8?style=flat-square)]()
 [![Proxy Validation](https://img.shields.io/badge/NLP%20Audit-57%C3%97%20Enrichment-f59e0b?style=flat-square)]()
@@ -8,6 +9,8 @@
 
 **Track 02 — AI Risk Manager** · Razorpay AI Buildathon  
 *Stop the merchant losing money to fraud, returns and chargebacks.*
+
+🚀 **Live Checkout Demo**: **[https://razorpay-return-risk-scorer.vercel.app/](https://razorpay-return-risk-scorer.vercel.app/)**
 
 A production-oriented verifier that scores an e-commerce order's probability of turning into a return/refund/cancellation-style loss, at order time with a measured precision/recall on a held-out test set, an honest false-positive cost sensitivity model, and an automated **Razorpay Magic Checkout** policy action engine.
 
@@ -17,7 +20,10 @@ A production-oriented verifier that scores an e-commerce order's probability of 
 
 ## ⚡ Quickstart: Launch Interactive Demo
 
-Experience the full end-to-end system in your browser:
+> 🌐 **Instant Live Demo:** Try the deployed Magic Checkout interface immediately in your browser:  
+> **👉 [https://razorpay-return-risk-scorer.vercel.app/](https://razorpay-return-risk-scorer.vercel.app/)**
+
+To run the full stack locally (including API and merchant dashboard):
 
 ```bash
 # 1. Clone repository
@@ -35,7 +41,9 @@ uvicorn return_risk.api:app --app-dir src --port 8000
 ```
 
 ### 🎯 Two Live Interactive Views:
-1. **Consumer Checkout Experience**: **[`http://localhost:8000/checkout`](http://localhost:8000/checkout)**  
+1. **Consumer Checkout Experience**:
+   - 🌐 **Live Web App**: **[`https://razorpay-return-risk-scorer.vercel.app/`](https://razorpay-return-risk-scorer.vercel.app/)**
+   - 💻 **Local Server**: **[`http://localhost:8000/checkout`](http://localhost:8000/checkout)**  
    *Experience the checkout directly from the end-customer's viewpoint. Watch payment methods, UPI incentives, OTP verification, and COD availability dynamically adapt in real-time based on buyer return risk.*
 2. **Merchant Risk & Analytics Console**: **[`http://localhost:8000/dashboard`](http://localhost:8000/dashboard)**  
    *Interactive merchant simulator with dynamic threshold sliders, live sub-millisecond latency monitor, cost sensitivity curves, and plain-language reason codes.*

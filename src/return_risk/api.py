@@ -19,6 +19,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .score import ReturnRiskScorer
@@ -27,12 +28,17 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 PROCESSED_DIR = ROOT / "data" / "processed"
 REPORTS_DIR = ROOT / "reports"
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 app = FastAPI(
     title="Razorpay AI Buildathon — Return Risk Scorer",
     description="Real-time return risk scoring & Magic Checkout action policy engine for Track 02 (AI Risk Manager)",
     version="1.0.0",
 )
+
+# Mount static files for product images and assets
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 _scorer: Optional[ReturnRiskScorer] = None
 
 
@@ -78,6 +84,15 @@ def get_dashboard():
     template_path = TEMPLATES_DIR / "dashboard.html"
     if not template_path.exists():
         raise HTTPException(404, "Dashboard template not found")
+    return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
+
+
+@app.get("/checkout", response_class=HTMLResponse)
+def get_checkout():
+    """Serves the dynamic Magic Checkout page — demonstrates risk-adaptive buyer experience."""
+    template_path = TEMPLATES_DIR / "checkout.html"
+    if not template_path.exists():
+        raise HTTPException(404, "Checkout template not found")
     return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
 
 

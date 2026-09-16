@@ -1,0 +1,7 @@
+{
+  "seller_prior_bad_rate_p75": 0.16418795311335455,
+  "n_items_p90": 1.0,
+  "promised_delivery_days_p90": 34.0,
+  "freight_ratio_p90": 0.6104780766903228,
+  "cost_optimal_threshold": 0.598
+}

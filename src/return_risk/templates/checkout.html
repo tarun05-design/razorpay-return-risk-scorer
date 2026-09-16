@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ===== DESIGN TOKENS ===== */
+    :root {
+      --amz-bg: #eaeded;
+      --amz-card-bg: #ffffff;
+      --amz-border: #d5d9d9;
+      --amz-border-active: #007185;
+      --amz-text: #0f1111;
+      --amz-text-secondary: #565959;
+      --amz-text-subtle: #6f7373;
+      --amz-link: #007185;
+      --amz-link-hover: #c7511f;
+      --amz-orange: #ff9900;
+      --amz-yellow: #ffd814;
+      --amz-yellow-hover: #f7ca00;
+      --amz-yellow-border: #fcd200;
+      --amz-green: #067d62;
+      --amz-green-light: #ecfdf5;
+      --amz-red: #ba0933;
+      --amz-red-bg: #fef2f2;
+      --amz-prime-blue: #00a8e1;
+      --amz-radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--amz-bg);
+      color: var(--amz-text);
+      font-family: 'Open Sans', 'Roboto', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    a {
+      color: var(--amz-link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--amz-link-hover);
+      text-decoration: underline;
+    }
+
+    /* ===== MINIMAL CHECKOUT HEADER ===== */
+    .amz-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--amz-border);
+      padding: 16px 0;
+    }
+
+    .header-content {
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .checkout-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--amz-text);
+      letter-spacing: -0.2px;
+    }
+
+    .security-lock {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--amz-text-secondary);
+      font-weight: 600;
+    }
+
+    .lock-icon {
+      font-size: 16px;
+      color: #767676;
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .checkout-container {
+      max-width: 1150px;
+      margin: 18px auto 60px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .checkout-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== LEFT COLUMN: 3 STEPS ===== */
+    .checkout-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step-card {
+      background: var(--amz-card-bg);
+      border: 1px solid var(--amz-border);
+      border-radius: var(--amz-radius);
+      padding: 18px 24px;
+      transition: border-color 0.2s;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .step-heading {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--amz-text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .step-number {
+      font-size: 18px;
+      color: var(--amz-text-secondary);
+      font-weight: 600;
+    }
+
+    .change-link {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* Address Section */
+    .address-details {
+      padding-left: 26px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--amz-text);
+    }
+
+    .address-tag-pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      background: #f0f2f2;
+      color: var(--amz-text-secondary);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+
+    .delivery-instructions-link {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    /* Payment Methods Section */
+    .payment-options-list {
+      padding-left: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .payment-option-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--amz-border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .payment-option-row:hover {
+      background: #fcfcfc;
+      border-color: #adb1b8;
+    }
+
+    .payment-option-row.selected {
+      background: #fbfbfb;
+    }
+
+    .amz-radio {
+      margin-top: 3px;
+      cursor: pointer;
+      accent-color: #007185;
+      width: 16px;
+      height: 16px;
+    }
+
+    .option-details {
+      flex: 1;
+    }
+
+    .option-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--amz-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .option-sub {
+      font-size: 12px;
+      color: var(--amz-text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Dynamic Return-Risk Policies inside Payment UI */
+
+    /* 1. Moderate Risk: UPI Incentive Box */
+    .upi-incentive-box {
+      margin-top: 8px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .incentive-text {
+      font-size: 13px;
+      color: #15803d;
+      font-weight: 600;
+    }
+
+    .incentive-pill {
+      margin-left: auto;
+      background: #16a34a;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* 2. Elevated Risk: Phone Verification Notice */
+    .verify-notice-box {
+      margin-top: 8px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #92400e;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .verify-notice-box strong {
+      font-weight: 700;
+    }
+
+    .otp-mock-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .otp-input-field {
+      width: 110px;
+      padding: 6px 8px;
+      border: 1px solid #d5d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 3px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .otp-verify-btn {
+      background: #ffd814;
+      border: 1px solid #fcd200;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .otp-verify-btn:hover {
+      background: #f7ca00;
+    }
+
+    /* Disabled COD Row Styling */
+    .payment-option-row.disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: #f9f9f9;
+    }
+
+    .payment-option-row.disabled .option-title {
+      color: var(--amz-text-subtle);
+    }
+
+    /* Items & Review Section */
+    .delivery-date-banner {
+      background: #f7fafa;
+      border-left: 4px solid var(--amz-prime-blue);
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #007185;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .express-badge {
+      background: #0284c7;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .items-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .order-item-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f2f2;
+    }
+
+    .order-item-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .item-img-box {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      border: 1px solid #eaeded;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .item-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--amz-text);
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+
+    .item-seller {
+      font-size: 12px;
+      color: var(--amz-text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .item-price {
+      font-size: 14px;
+      font-weight: 700;
+      color: #b12704;
+    }
+
+    .item-mrp {
+      font-size: 12px;
+      color: var(--amz-text-secondary);
+      text-decoration: line-through;
+      margin-left: 6px;
+    }
+
+    .item-qty-badge {
+      font-size: 12px;
+      color: var(--amz-text-secondary);
+      margin-left: 12px;
+    }
+
+    /* ===== RIGHT COLUMN: ORDER SUMMARY ===== */
+    .order-summary-col {
+      position: sticky;
+      top: 20px;
+    }
+
+    .order-summary-card {
+      background: var(--amz-card-bg);
+      border: 1px solid var(--amz-border);
+      border-radius: var(--amz-radius);
+      padding: 18px;
+    }
+
+    .summary-heading {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--amz-text);
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--amz-text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .summary-line.savings {
+      color: var(--amz-green);
+      font-weight: 600;
+    }
+
+    .free-delivery-text {
+      color: var(--amz-green);
+      font-weight: 700;
+    }
+
+    .summary-divider {
+      height: 1px;
+      background: #e7e7e7;
+      margin: 12px 0;
+    }
+
+    .order-total-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: 700;
+      color: #b12704;
+      margin-bottom: 8px;
+    }
+
+    .savings-highlight-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #15803d;
+      margin: 12px 0 16px;
+      text-align: center;
+    }
+
+    .amz-gold-btn {
+      width: 100%;
+      background: var(--amz-yellow);
+      border: 1px solid var(--amz-yellow-border);
+      border-radius: 8px;
+      padding: 11px 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f1111;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(213, 217, 217, 0.5);
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .amz-gold-btn:hover {
+      background: var(--amz-yellow-hover);
+      box-shadow: 0 2px 5px rgba(213, 217, 217, 0.7);
+    }
+
+    .amz-gold-btn:active {
+      background: #f2c200;
+    }
+
+    .terms-text {
+      font-size: 11px;
+      color: var(--amz-text-secondary);
+      line-height: 1.4;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* ===== FLOATING RETURN RISK ADVISOR (EXECUTIVE DEMO CARD) ===== */
+    .risk-advisor-floating-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f1111;
+      color: #ffffff;
+      border: 1px solid #333;
+      border-radius: 30px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      transition: all 0.2s;
+    }
+
+    .risk-advisor-floating-btn:hover {
+      background: #232f3e;
+      transform: translateY(-2px);
+    }
+
+    .advisor-pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    /* Mini Advisor Modal / Popup */
+    .advisor-popup-card {
+      position: fixed;
+      bottom: 68px;
+      right: 20px;
+      width: 360px;
+      background: #ffffff;
+      border: 1px solid #d5d9d9;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      z-index: 1000;
+      display: none;
+      overflow: hidden;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .advisor-popup-card.open {
+      display: block;
+    }
+
+    .advisor-header {
+      background: #0f1111;
+      color: #ffffff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .advisor-title {
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .close-advisor-btn {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .advisor-body {
+      padding: 16px;
+    }
+
+    .advisor-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eaeded;
+    }
+
+    .advisor-status-label {
+      font-size: 12px;
+      color: var(--amz-text-secondary);
+      font-weight: 600;
+    }
+
+    .advisor-status-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .advisor-explanation {
+      font-size: 13px;
+      color: var(--amz-text);
+      line-height: 1.45;
+      background: #f7fafa;
+      border-left: 3px solid #007185;
+      padding: 10px 12px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 16px;
+    }
+
+    .advisor-switcher-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amz-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .advisor-profile-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .profile-btn {
+      background: #ffffff;
+      border: 1px solid #d5d9d9;
+      border-radius: 6px;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--amz-text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .profile-btn:hover {
+      background: #f7fafa;
+      border-color: #007185;
+    }
+
+    .profile-btn.active {
+      background: #edf7f8;
+      border-color: #007185;
+      color: #007185;
+      font-weight: 700;
+    }
+
+    .profile-tag {
+      font-size: 10px;
+      color: var(--amz-text-secondary);
+      font-weight: 600;
+    }
+
+    .profile-btn.active .profile-tag {
+      color: #007185;
+    }
+
+    /* Modal for Order Placed */
+    .amz-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .amz-modal-backdrop.open {
+      display: flex;
+    }
+
+    .amz-modal {
+      background: #ffffff;
+      border-radius: 8px;
+      max-width: 440px;
+      width: 100%;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .amz-success-check {
+      color: var(--amz-green);
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .amz-modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .amz-modal-desc {
+      font-size: 13px;
+      color: var(--amz-text-secondary);
+      margin-bottom: 18px;
+    }
+
+    .amz-modal-btn {
+      background: var(--amz-yellow);
+      border: 1px solid var(--amz-yellow-border);
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== MOBILE & TABLET RESPONSIVE UX OPTIMIZATIONS ===== */
+    @media (max-width: 900px) {
+      .checkout-container {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        margin: 12px auto 80px;
+        padding: 0 14px;
+      }
+
+      .order-summary-col {
+        position: static;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      /* Header UX */
+      .amz-header {
+        padding: 12px 0;
+      }
+
+      .header-content {
+        padding: 0 12px;
+      }
+
+      .checkout-title {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .security-lock {
+        font-size: 11px;
+        gap: 4px;
+      }
+
+      .lock-icon {
+        font-size: 14px;
+      }
+
+      /* Container & Steps */
+      .checkout-container {
+        margin: 10px auto 84px;
+        padding: 0 10px;
+        gap: 12px;
+      }
+
+      .checkout-steps {
+        gap: 12px;
+      }
+
+      .step-card {
+        padding: 14px 14px;
+        border-radius: 8px;
+      }
+
+      .step-heading {
+        font-size: 15px;
+        gap: 8px;
+      }
+
+      .step-number {
+        font-size: 15px;
+      }
+
+      /* Address Card */
+      .address-details {
+        padding-left: 0;
+        margin-top: 8px;
+        font-size: 12.5px;
+        line-height: 1.5;
+      }
+
+      /* Payment Options - Large thumb-friendly touch targets */
+      .payment-options-list {
+        padding-left: 0;
+        margin-top: 8px;
+        gap: 10px;
+      }
+
+      .payment-option-row {
+        padding: 11px 12px;
+        gap: 10px;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .option-title {
+        font-size: 13.5px;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .option-sub {
+        font-size: 11.5px;
+      }
+
+      .amz-radio {
+        width: 18px;
+        height: 18px;
+        margin-top: 1px;
+      }
+
+      /* Items Review & Delivery Banner */
+      .delivery-date-banner {
+        padding: 8px 10px;
+        font-size: 12px;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .order-item-row {
+        gap: 12px;
+        padding-bottom: 12px;
+      }
+
+      .item-img-box {
+        width: 58px;
+        height: 58px;
+      }
+
+      .item-title {
+        font-size: 13px;
+        line-height: 1.3;
+      }
+
+      .item-seller {
+        font-size: 11px;
+      }
+
+      .item-price {
+        font-size: 13.5px;
+      }
+
+      .item-mrp {
+        font-size: 11.5px;
+      }
+
+      .item-qty-badge {
+        font-size: 11px;
+        margin-left: 8px;
+      }
+
+      /* OTP Box Mobile */
+      .verify-notice-box {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+
+      .otp-mock-row {
+        gap: 8px;
+      }
+
+      .otp-input-field {
+        width: 100px;
+        padding: 6px 4px;
+        font-size: 14px;
+      }
+
+      .otp-verify-btn {
+        padding: 6px 14px;
+        font-size: 12px;
+      }
+
+      /* Order Summary Card Mobile */
+      .order-summary-card {
+        padding: 14px;
+        border-radius: 8px;
+      }
+
+      .summary-heading {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      .summary-line {
+        font-size: 12.5px;
+        margin-bottom: 6px;
+      }
+
+      .order-total-line {
+        font-size: 16.5px;
+        margin-bottom: 6px;
+      }
+
+      .savings-highlight-box {
+        font-size: 11.5px;
+        padding: 7px 8px;
+        margin: 10px 0 14px;
+      }
+
+      .amz-gold-btn {
+        padding: 13px 0;
+        font-size: 15px;
+        border-radius: 8px;
+      }
+
+      .terms-text {
+        font-size: 10.5px;
+        margin-top: 8px;
+      }
+
+      /* Floating Return Risk Advisor - Mobile Bottom Sheet Style */
+      .risk-advisor-floating-btn {
+        bottom: 14px;
+        right: 12px;
+        padding: 8px 14px;
+        font-size: 12px;
+        border-radius: 24px;
+        gap: 6px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      }
+
+      .advisor-popup-card {
+        bottom: 58px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        border-radius: 12px;
+        max-height: 75vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+      }
+
+      .advisor-header {
+        padding: 10px 14px;
+      }
+
+      .advisor-title {
+        font-size: 12px;
+      }
+
+      .advisor-body {
+        padding: 12px 14px;
+      }
+
+      .advisor-explanation {
+        font-size: 12px;
+        padding: 8px 10px;
+        margin-bottom: 12px;
+      }
+
+      .profile-btn {
+        padding: 8px 10px;
+        font-size: 11.5px;
+      }
+
+      .profile-tag {
+        font-size: 9.5px;
+      }
+
+      /* Modal Mobile */
+      .amz-modal {
+        padding: 20px 16px;
+        margin: 12px;
+        border-radius: 10px;
+      }
+
+      .amz-modal-title {
+        font-size: 18px;
+      }
+
+      .amz-modal-desc {
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .checkout-title {
+        font-size: 16px;
+      }
+
+      .security-lock span:last-child {
+        display: none;
+      }
+
+      .step-heading {
+        font-size: 14px;
+      }
+
+      .amz-gold-btn {
+        font-size: 13.5px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== 1. MINIMAL CHECKOUT HEADER ===== -->
+  <header class="amz-header">
+    <div class="header-content">
+      <div class="checkout-title">
+        Checkout (<span id="cartCountTitle">2 items</span>)
+      </div>
+
+      <div class="security-lock">
+        <span>Demo User</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== 2. MAIN CHECKOUT 2-COLUMN LAYOUT ===== -->
+  <main class="checkout-container">
+
+    <!-- LEFT COLUMN: 3-STEP CHECKOUT -->
+    <div class="checkout-steps">
+
+      <!-- STEP 1: DELIVERY ADDRESS -->
+      <div class="step-card" id="step1Card">
+        <div class="step-header">
+          <div class="step-heading">
+            <span class="step-number">1</span>
+            <span>Delivery address</span>
+          </div>
+          <a href="javascript:void(0)" class="change-link" onclick="toggleAddressSwitch()">Change</a>
+        </div>
+        <div class="address-details" id="addressDetailsBox">
+          <div><strong id="addrRecipient">Arjun Mehta</strong> <span class="address-tag-pill" id="addrTag">Home</span>
+          </div>
+          <div id="addrLine1">Flat 402, Royal Palms, 18th Main Road, HAL 2nd Stage</div>
+          <div id="addrCityState">BENGALURU, KARNATAKA 560038</div>
+          <div id="addrPhone" style="color:var(--amz-text-secondary); margin-top:2px;">Phone: 98XXXXXXXX</div>
+          <a href="javascript:void(0)" class="delivery-instructions-link">Add delivery instructions</a>
+        </div>
+      </div>
+
+      <!-- STEP 2: PAYMENT METHOD -->
+      <div class="step-card" id="step2Card">
+        <div class="step-header">
+          <div class="step-heading">
+            <span class="step-number">2</span>
+            <span>Select a payment method</span>
+          </div>
+        </div>
+
+        <div class="payment-options-list">
+
+          <!-- 1. UPI Payment -->
+          <label class="payment-option-row selected" id="row-upi">
+            <input type="radio" name="paymentMethod" class="amz-radio" checked onchange="onPaymentChange('upi')" />
+            <div class="option-details">
+              <div class="option-title">
+                <span>UPI (Google Pay, PhonePe, Paytm, QR)</span>
+                <span
+                  style="font-size:11px; font-weight:700; color:var(--amz-green); background:#f0fdf4; border:1px solid #bbf7d0; padding:1px 6px; border-radius:3px;">RECOMMENDED</span>
+              </div>
+              <div class="option-sub">Google Pay, PhonePe, Paytm, CRED or any UPI ID</div>
+
+              <!-- Customer Offer Banner (No mention of policy) -->
+              <div class="upi-incentive-box" id="upiIncentiveBox" style="display:none;">
+                <span class="incentive-text">Flat ₹50 instant discount applied for paying via UPI</span>
+                <span class="incentive-pill">-₹50 SAVED</span>
+              </div>
+            </div>
+          </label>
+
+          <!-- 2. Cards -->
+          <label class="payment-option-row" id="row-card">
+            <input type="radio" name="paymentMethod" class="amz-radio" onchange="onPaymentChange('card')" />
+            <div class="option-details">
+              <div class="option-title">Credit or debit card</div>
+              <div class="option-sub">Visa, MasterCard, RuPay, Maestro, American Express</div>
+            </div>
+          </label>
+
+          <!-- 3. Net Banking -->
+          <label class="payment-option-row" id="row-netbanking">
+            <input type="radio" name="paymentMethod" class="amz-radio" onchange="onPaymentChange('netbanking')" />
+            <div class="option-details">
+              <div class="option-title">Net Banking</div>
+              <div class="option-sub">HDFC, ICICI, State Bank of India, Axis Bank and other banks</div>
+            </div>
+          </label>
+
+          <!-- 4. Cash on Delivery / Pay on Delivery (DYNAMIC RISK INTERVENTION) -->
+          <label class="payment-option-row" id="row-cod">
+            <input type="radio" name="paymentMethod" id="codRadio" class="amz-radio"
+              onchange="onPaymentChange('cod')" />
+            <div class="option-details">
+              <div class="option-title">
+                <span>Cash on Delivery / Pay on Delivery</span>
+                <span id="codStatusTag" style="font-size:11px; font-weight:700; display:none;"></span>
+              </div>
+              <div class="option-sub" id="codSubText">Pay with cash, UPI or card upon delivery at your doorstep</div>
+
+              <!-- Dynamic Elevated Risk Phone Verification (NO MOBILE ICON, BLANK OTP WITH VALIDATION) -->
+              <div class="verify-notice-box" id="codVerifyBox" style="display:none;">
+                <strong>OTP Verification Required for Cash on Delivery</strong>
+                <div>To confirm your order, a 4-digit code was sent to your registered mobile number (+91 98XXXXXXXX).
+                </div>
+                <div class="otp-mock-row">
+                  <input type="text" id="otpInput" class="otp-input-field" value="" placeholder="----" maxlength="4" />
+                  <button type="button" class="otp-verify-btn" onclick="verifyOtp()">Confirm OTP</button>
+                  <span id="otpSuccessCheck" style="color:var(--amz-green); font-weight:700; display:none;">✓
+                    Verified</span>
+                </div>
+                <div id="otpErrorMsg"
+                  style="color:#b91c1c; font-size:12px; margin-top:6px; font-weight:600; display:none;">Please enter a
+                  valid 4-digit OTP code</div>
+              </div>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- STEP 3: REVIEW ITEMS & DELIVERY -->
+      <div class="step-card" id="step3Card">
+        <div class="step-header">
+          <div class="step-heading">
+            <span class="step-number">3</span>
+            <span>Review items and delivery</span>
+          </div>
+        </div>
+
+        <div class="delivery-date-banner" id="deliveryDateBanner">
+          <span class="express-badge">EXPRESS</span>
+          <span id="deliveryDateText">Guaranteed delivery: Tomorrow, 11 AM - 1 PM</span>
+        </div>
+
+        <div class="items-container" id="itemsListContainer">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: ORDER SUMMARY -->
+    <aside class="order-summary-col">
+      <div class="order-summary-card">
+        <div class="summary-heading">Order Summary</div>
+
+        <div class="summary-line">
+          <span>Items:</span>
+          <span id="sumItemsVal">₹769.00</span>
+        </div>
+
+        <div class="summary-line">
+          <span>Delivery:</span>
+          <span class="free-delivery-text">FREE</span>
+        </div>
+
+        <div class="summary-line savings" id="sumUpiDiscountRow" style="display:none;">
+          <span>Promotion Applied:</span>
+          <span id="sumUpiDiscountVal">-₹50.00</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="order-total-line">
+          <span>Order Total:</span>
+          <span id="sumOrderTotalVal">₹769.00</span>
+        </div>
+
+        <div class="savings-highlight-box" id="savingsHighlightBox">
+          Your Savings: <strong id="savingsAmtText">₹629.00 (45%)</strong> on this order.
+        </div>
+
+        <button class="amz-gold-btn" id="placeOrderBtn" onclick="submitOrder()">Place your order</button>
+        <div class="terms-text">
+          By placing your order, you agree to our <a href="#">privacy notice</a> and <a href="#">conditions of use</a>.
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ===== 3. MINI PROFESSIONAL RETURN RISK ADVISOR POPUP ===== -->
+  <button class="risk-advisor-floating-btn" onclick="toggleAdvisor()">
+    <div class="advisor-pulse-dot" id="floatingDot"></div>
+    <span id="floatingAdvisorLabel">Return Risk: Low (11%)</span>
+    <span style="font-size:11px;">▲</span>
+  </button>
+
+  <div class="advisor-popup-card" id="advisorPopup">
+    <div class="advisor-header">
+      <div class="advisor-title">
+        <span>Razorpay Return Risk Advisor</span>
+      </div>
+      <button class="close-advisor-btn" onclick="toggleAdvisor()">✕</button>
+    </div>
+
+    <div class="advisor-body">
+      <div class="advisor-status-row">
+        <span class="advisor-status-label">Predicted Return Risk</span>
+        <span class="advisor-status-badge" id="advBadge" style="background:#ecfdf5; color:#067d62;">LOW RISK
+          (11%)</span>
+      </div>
+
+      <div class="advisor-explanation" id="advExplanation">
+        Established buyer in local metro cluster with reliable delivery history. Returns are under 2%. Full checkout
+        access with zero friction.
+      </div>
+
+      <div class="advisor-switcher-title">Switch Customer Profile (Demo Scenarios)</div>
+      <div class="advisor-profile-buttons">
+        <button class="profile-btn active" id="prof-safe" onclick="loadProfile('safe')">
+          <span>1. Trusted Metro Buyer</span>
+          <span class="profile-tag">Safe (Indiranagar)</span>
+        </button>
+        <button class="profile-btn" id="prof-moderate" onclick="loadProfile('moderate')">
+          <span>2. Interstate Buyer</span>
+          <span class="profile-tag">UPI Offer (-₹50)</span>
+        </button>
+        <button class="profile-btn" id="prof-elevated" onclick="loadProfile('elevated')">
+          <span>3. Multi-Item Order</span>
+          <span class="profile-tag">OTP Verification</span>
+        </button>
+        <button class="profile-btn" id="prof-critical" onclick="loadProfile('critical')">
+          <span>4. Remote Pincode</span>
+          <span class="profile-tag">COD Restricted</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 4. ORDER PLACED MODAL ===== -->
+  <div class="amz-modal-backdrop" id="amzModal">
+    <div class="amz-modal">
+      <div class="amz-success-check">✓</div>
+      <div class="amz-modal-title">Order Placed, Thank You!</div>
+      <div class="amz-modal-desc">
+        Confirmation will be sent to your registered mobile number and email. Your items will be delivered tomorrow.
+      </div>
+      <button class="amz-modal-btn" onclick="closeModal()">Continue Shopping</button>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPT ===== -->
+  <script>
+    // Authentic Customer Profiles with realistic distinct consumer products (1 unit each)
+    const PROFILES = {
+      safe: {
+        tier: 'low',
+        scoreLabel: 'Low (11%)',
+        badgeBg: '#ecfdf5',
+        badgeColor: '#067d62',
+        explanation: 'Established buyer in local metro cluster with reliable delivery history. Returns are under 2%. Full checkout access with zero friction.',
+        address: {
+          tag: 'Home',
+          name: 'Arjun Mehta',
+          line1: 'Flat 402, Royal Palms, 18th Main Road, HAL 2nd Stage, Indiranagar',
+          cityState: 'BENGALURU, KARNATAKA 560038',
+          phone: 'Phone: 98XXXXXXXX',
+          eta: 'Guaranteed delivery: Tomorrow, 11 AM - 1 PM'
+        },
+        items: [
+          {
+            name: 'Fast 65W GaN Dual-Port Wall Charger with Braided USB-C Cable (1.8m)',
+            seller: 'Sold by: Appario Retail Private Ltd',
+            price: 349,
+            mrp: 699,
+            qty: 1,
+            img: '/static/images/product_charger.jpg'
+          },
+          {
+            name: 'Insulated Double-Wall Stainless Steel Sports Water Bottle (750ml, Matte Black)',
+            seller: 'Sold by: Cocoblu Retail',
+            price: 420,
+            mrp: 699,
+            qty: 1,
+            img: '/static/images/product_bottle.jpg'
+          }
+        ],
+        freight: 25,
+        orderPayload: {
+          product_category_name_english: 'telephony',
+          payment_type: 'debit_card',
+          n_items: 2, n_distinct_products: 2, n_distinct_sellers: 2,
+          total_price: 769, total_freight: 25, avg_price: 384.5, max_price: 420,
+          avg_weight_g: 650, avg_photos_qty: 4, avg_desc_length: 500, avg_name_length: 45,
+          n_payment_installments: 1, total_payment_value: 794, n_payment_methods: 1,
+          customer_state: 'SP', seller_state: 'SP', seller_id: 'trusted_local_seller_01',
+          order_purchase_timestamp: '2018-06-15 14:30:00',
+          order_estimated_delivery_date: '2018-06-23 00:00:00',
+        }
+      },
+      moderate: {
+        tier: 'moderate',
+        scoreLabel: 'Moderate (45%)',
+        badgeBg: '#f0f9ff',
+        badgeColor: '#0369a1',
+        explanation: 'Interstate fulfillment from Mumbai warehouse. To mitigate courier return shipping risk, a ₹50 instant UPI discount is offered to encourage prepaid payment.',
+        address: {
+          tag: 'Work',
+          name: 'Priya Sharma',
+          line1: 'Tower B, 4th Floor, Tech Hub, Outer Ring Road, Bellandur',
+          cityState: 'BENGALURU, KARNATAKA 560103',
+          phone: 'Phone: 98XXXXXXXX',
+          eta: 'Guaranteed delivery: Wednesday by 8 PM'
+        },
+        items: [
+          {
+            name: 'Urban Canvas Everyday Water-Resistant Crossbody Messenger Bag (14-inch)',
+            seller: 'Sold by: UrbanCraft Lifestyle Store',
+            price: 580,
+            mrp: 999,
+            qty: 1,
+            img: '/static/images/product_bag.jpg'
+          },
+          {
+            name: 'Scandinavian Minimalist Warm Glow Desk Lamp with Dimmable Touch Control',
+            seller: 'Sold by: Appario Retail Private Ltd',
+            price: 450,
+            mrp: 799,
+            qty: 1,
+            img: '/static/images/product_lamp.jpg'
+          },
+          {
+            name: 'Fast 65W GaN Dual-Port Wall Charger with Braided USB-C Cable',
+            seller: 'Sold by: VoltGa Official Store',
+            price: 349,
+            mrp: 699,
+            qty: 1,
+            img: '/static/images/product_charger.jpg'
+          }
+        ],
+        freight: 90,
+        orderPayload: {
+          product_category_name_english: 'health_beauty',
+          payment_type: 'credit_card',
+          n_items: 3, n_distinct_products: 3, n_distinct_sellers: 3,
+          total_price: 1379, total_freight: 90, avg_price: 459.6, max_price: 580,
+          avg_weight_g: 1600, avg_photos_qty: 3, avg_desc_length: 350, avg_name_length: 38,
+          n_payment_installments: 3, total_payment_value: 1469, n_payment_methods: 1,
+          customer_state: 'MG', seller_state: 'SP', seller_id: 'interactive_sim_seller',
+          order_purchase_timestamp: '2018-06-15 14:30:00',
+          order_estimated_delivery_date: '2018-07-08 00:00:00',
+        }
+      },
+      elevated: {
+        tier: 'elevated',
+        scoreLabel: 'Elevated (65%)',
+        badgeBg: '#fffbeb',
+        badgeColor: '#b45309',
+        explanation: 'Multi-category electronics order with long transit window. Cash on Delivery requires customer mobile OTP verification to filter out impulsive / accidental bookings.',
+        address: {
+          tag: 'Home',
+          name: 'Vikram Patel',
+          line1: 'Plot 88, Sector 14, Near City Garden',
+          cityState: 'GANDHINAGAR, GUJARAT 382010',
+          phone: 'Phone: 98XXXXXXXX',
+          eta: 'Delivery by Friday, 20 Sep'
+        },
+        items: [
+          {
+            name: 'Active Noise Cancelling Wireless Over-Ear Headphones with Ambient Sound Mode',
+            seller: 'Sold by: AudioTech India Electronics',
+            price: 1499,
+            mrp: 2999,
+            qty: 1,
+            img: '/static/images/product_headphones.jpg'
+          },
+          {
+            name: 'Smart Fitness Watch with 1.4" AMOLED Display & Heart Rate Tracker',
+            seller: 'Sold by: GizmoWorld India',
+            price: 1650,
+            mrp: 3499,
+            qty: 1,
+            img: '/static/images/product_watch.jpg'
+          },
+          {
+            name: 'Insulated Double-Wall Stainless Steel Sports Water Bottle (750ml, Matte Black)',
+            seller: 'Sold by: Cocoblu Retail',
+            price: 420,
+            mrp: 699,
+            qty: 1,
+            img: '/static/images/product_bottle.jpg'
+          }
+        ],
+        freight: 200,
+        orderPayload: {
+          product_category_name_english: 'furniture_decor',
+          payment_type: 'credit_card',
+          n_items: 3, n_distinct_products: 3, n_distinct_sellers: 3,
+          total_price: 3569, total_freight: 200, avg_price: 1189.6, max_price: 1650,
+          avg_weight_g: 2200, avg_photos_qty: 3, avg_desc_length: 300, avg_name_length: 35,
+          n_payment_installments: 6, total_payment_value: 3769, n_payment_methods: 1,
+          customer_state: 'RJ', seller_state: 'SP', seller_id: 'interactive_sim_seller',
+          order_purchase_timestamp: '2018-06-15 14:30:00',
+          order_estimated_delivery_date: '2018-07-05 00:00:00',
+        }
+      },
+      critical: {
+        tier: 'critical',
+        scoreLabel: 'High Risk (63%)',
+        badgeBg: '#fef2f2',
+        badgeColor: '#b91c1c',
+        explanation: 'Remote outstation postal code with statistically elevated courier return (RTO) rates. Cash on Delivery is disabled to safeguard the merchant from transit shipping losses.',
+        address: {
+          tag: 'Rural',
+          name: 'Rajesh Roy',
+          line1: 'Village Rampur, Near Old Post Office, Purnia District',
+          cityState: 'PURNIA, BIHAR 854301',
+          phone: 'Phone: 98XXXXXXXX',
+          eta: 'Estimated delivery: Monday, 23 Sep'
+        },
+        items: [
+          {
+            name: 'Smart Fitness Watch with 1.4" AMOLED Display & Heart Rate Tracker',
+            seller: 'Sold by: NextGen Gadgets',
+            price: 1650,
+            mrp: 3499,
+            qty: 1,
+            img: '/static/images/product_watch.jpg'
+          },
+          {
+            name: 'Active Noise Cancelling Wireless Over-Ear Headphones with Ambient Sound Mode',
+            seller: 'Sold by: SoundHub Direct',
+            price: 1499,
+            mrp: 2999,
+            qty: 1,
+            img: '/static/images/product_headphones.jpg'
+          },
+          {
+            name: 'Urban Canvas Everyday Water-Resistant Crossbody Messenger Bag',
+            seller: 'Sold by: UrbanCraft Lifestyle Store',
+            price: 580,
+            mrp: 999,
+            qty: 1,
+            img: '/static/images/product_bag.jpg'
+          },
+          {
+            name: 'Scandinavian Minimalist Warm Glow Desk Lamp with Dimmable Touch Control',
+            seller: 'Sold by: Lumina Home',
+            price: 450,
+            mrp: 799,
+            qty: 1,
+            img: '/static/images/product_lamp.jpg'
+          }
+        ],
+        freight: 500,
+        orderPayload: {
+          product_category_name_english: 'furniture_decor',
+          payment_type: 'credit_card',
+          n_items: 4, n_distinct_products: 4, n_distinct_sellers: 4,
+          total_price: 4179, total_freight: 500, avg_price: 1044.75, max_price: 1650,
+          avg_weight_g: 4800, avg_photos_qty: 2, avg_desc_length: 120, avg_name_length: 25,
+          n_payment_installments: 12, total_payment_value: 4679, n_payment_methods: 3,
+          customer_state: 'RJ', seller_state: 'RS', seller_id: 'brand_new_seller_xyz',
+          order_purchase_timestamp: '2018-06-15 14:30:00',
+          order_estimated_delivery_date: '2018-08-20 00:00:00',
+        }
+      }
+    };
+
+    let currentProfileKey = 'safe';
+    let currentSelectedPayment = 'upi';
+
+    function toggleAdvisor() {
+      const popup = document.getElementById('advisorPopup');
+      popup.classList.toggle('open');
+    }
+
+    function toggleAddressSwitch() {
+      if (currentProfileKey === 'safe') {
+        loadProfile('critical');
+      } else {
+        loadProfile('safe');
+      }
+    }
+
+    function onPaymentChange(method) {
+      currentSelectedPayment = method;
+      document.querySelectorAll('.payment-option-row').forEach(row => row.classList.remove('selected'));
+      const activeRow = document.getElementById('row-' + method);
+      if (activeRow) activeRow.classList.add('selected');
+    }
+
+    function verifyOtp() {
+      const otpInput = document.getElementById('otpInput');
+      const otpVal = otpInput.value.trim();
+      const otpErr = document.getElementById('otpErrorMsg');
+      const check = document.getElementById('otpSuccessCheck');
+
+      if (!otpVal || otpVal.length < 4 || !/^\d{4}$/.test(otpVal)) {
+        if (otpErr) otpErr.style.display = 'block';
+        if (check) check.style.display = 'none';
+        otpInput.style.borderColor = '#dc2626';
+        otpInput.focus();
+        return;
+      }
+
+      if (otpErr) otpErr.style.display = 'none';
+      otpInput.style.borderColor = '#d5d9d9';
+      if (check) check.style.display = 'inline';
+      const codRadio = document.getElementById('codRadio');
+      codRadio.checked = true;
+      onPaymentChange('cod');
+    }
+
+    async function loadProfile(key) {
+      currentProfileKey = key;
+      const prof = PROFILES[key];
+
+      // Reset OTP inputs
+      const otpInput = document.getElementById('otpInput');
+      if (otpInput) {
+        otpInput.value = '';
+        otpInput.style.borderColor = '#d5d9d9';
+      }
+      const otpErr = document.getElementById('otpErrorMsg');
+      if (otpErr) otpErr.style.display = 'none';
+      const check = document.getElementById('otpSuccessCheck');
+      if (check) check.style.display = 'none';
+
+      // Update Advisor UI
+      document.querySelectorAll('.profile-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById('prof-' + key);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      document.getElementById('floatingAdvisorLabel').textContent = `Return Risk: ${prof.scoreLabel}`;
+      const floatingDot = document.getElementById('floatingDot');
+      floatingDot.style.background = prof.tier === 'low' ? '#10b981' : prof.tier === 'moderate' ? '#0ea5e9' : prof.tier === 'elevated' ? '#f59e0b' : '#ef4444';
+
+      const advBadge = document.getElementById('advBadge');
+      advBadge.textContent = prof.scoreLabel.toUpperCase();
+      advBadge.style.background = prof.badgeBg;
+      advBadge.style.color = prof.badgeColor;
+
+      document.getElementById('advExplanation').textContent = prof.explanation;
+
+      // Update Delivery Address
+      document.getElementById('addrRecipient').textContent = prof.address.name;
+      document.getElementById('addrTag').textContent = prof.address.tag;
+      document.getElementById('addrLine1').textContent = prof.address.line1;
+      document.getElementById('addrCityState').textContent = prof.address.cityState;
+      document.getElementById('addrPhone').textContent = prof.address.phone;
+      document.getElementById('deliveryDateText').textContent = prof.address.eta;
+
+      // Render Items
+      let totalMrp = 0;
+      let totalSelling = 0;
+      let totalCount = 0;
+      const itemsList = document.getElementById('itemsListContainer');
+      itemsList.innerHTML = '';
+
+      prof.items.forEach(it => {
+        totalMrp += it.mrp * it.qty;
+        totalSelling += it.price * it.qty;
+        totalCount += it.qty;
+
+        const div = document.createElement('div');
+        div.className = 'order-item-row';
+        div.innerHTML = `
+          <div class="item-img-box">
+            <img class="item-img" src="${it.img}" alt="${it.name}" onerror="this.src='/static/images/product_lamp.jpg';" />
+          </div>
+          <div class="item-info">
+            <div class="item-title">${it.name}</div>
+            <div class="item-seller">${it.seller}</div>
+            <div>
+              <span class="item-price">₹${it.price.toFixed(2)}</span>
+              <span class="item-mrp">₹${it.mrp.toFixed(2)}</span>
+              <span class="item-qty-badge">Qty: ${it.qty}</span>
+            </div>
+          </div>
+        `;
+        itemsList.appendChild(div);
+      });
+
+      document.getElementById('cartCountTitle').textContent = `${totalCount} item${totalCount > 1 ? 's' : ''}`;
+      document.getElementById('sumItemsVal').textContent = '₹' + totalSelling.toFixed(2);
+
+      // Call Scoring API to trigger real model under the hood
+      try {
+        await fetch('/score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(prof.orderPayload)
+        });
+      } catch (e) {
+        console.warn('Scoring call handled locally:', e);
+      }
+
+      // Apply dynamic policies to Checkout UI
+      applyCheckoutPolicy(prof.tier, totalSelling, totalMrp);
+    }
+
+    function applyCheckoutPolicy(tier, totalSelling, totalMrp) {
+      const upiBox = document.getElementById('upiIncentiveBox');
+      const codVerifyBox = document.getElementById('codVerifyBox');
+      const rowCod = document.getElementById('row-cod');
+      const codRadio = document.getElementById('codRadio');
+      const codStatusTag = document.getElementById('codStatusTag');
+      const codSubText = document.getElementById('codSubText');
+      const sumUpiDiscountRow = document.getElementById('sumUpiDiscountRow');
+      const otpSuccessCheck = document.getElementById('otpSuccessCheck');
+
+      // Reset
+      if (upiBox) upiBox.style.display = 'none';
+      codVerifyBox.style.display = 'none';
+      rowCod.classList.remove('disabled');
+      codRadio.disabled = false;
+      codStatusTag.style.display = 'none';
+      sumUpiDiscountRow.style.display = 'none';
+      if (otpSuccessCheck) otpSuccessCheck.style.display = 'none';
+      codSubText.textContent = 'Pay with cash, UPI or card upon delivery at your doorstep';
+
+      let upiDiscount = 0;
+
+      if (tier === 'low') {
+        // Zero friction
+        document.querySelector('input[name="paymentMethod"]').checked = true;
+        onPaymentChange('upi');
+      }
+      else if (tier === 'moderate') {
+        // ₹50 UPI discount
+        upiDiscount = 50;
+        if (upiBox) upiBox.style.display = 'flex';
+        sumUpiDiscountRow.style.display = 'flex';
+        document.querySelector('input[name="paymentMethod"]').checked = true;
+        onPaymentChange('upi');
+      }
+      else if (tier === 'elevated') {
+        // Mobile verification required
+        codVerifyBox.style.display = 'block';
+        codStatusTag.style.display = 'inline-block';
+        codStatusTag.textContent = 'OTP REQUIRED';
+        codStatusTag.style.color = '#b45309';
+        codSubText.textContent = 'Enter the 4-digit code above to unlock Pay on Delivery';
+        document.querySelector('input[name="paymentMethod"]').checked = true;
+        onPaymentChange('upi');
+      }
+      else if (tier === 'critical') {
+        // COD Blocked - clean disabled row without intrusive alert box
+        rowCod.classList.add('disabled');
+        codRadio.disabled = true;
+        codStatusTag.style.display = 'inline-block';
+        codStatusTag.textContent = 'NOT AVAILABLE';
+        codStatusTag.style.color = '#767676';
+        codSubText.textContent = 'Pay on Delivery is not available for this order';
+        document.querySelector('input[name="paymentMethod"]').checked = true;
+        onPaymentChange('upi');
+      }
+
+      // Order total calculation
+      const finalTotal = totalSelling - upiDiscount;
+      document.getElementById('sumOrderTotalVal').textContent = '₹' + finalTotal.toFixed(2);
+
+      const totalSavings = (totalMrp - totalSelling) + upiDiscount;
+      const savingsPct = Math.round((totalSavings / totalMrp) * 100);
+      document.getElementById('savingsAmtText').textContent = `₹${totalSavings.toFixed(2)} (${savingsPct}%)`;
+    }
+
+    function submitOrder() {
+      document.getElementById('amzModal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('amzModal').classList.remove('open');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProfile('safe');
+    });
+  </script>
+</body>
+
+</html>

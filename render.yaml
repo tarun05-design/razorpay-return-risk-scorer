@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: razorpay-return-risk-scorer
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn return_risk.api:app --app-dir src --host 0.0.0.0 --port $PORT
+    plan: free
+    autoDeploy: true

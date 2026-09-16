@@ -11,13 +11,11 @@ venv/
 env/
 .env
 
-# Raw and Processed Datasets (Not committed to Git)
-# Raw Olist dataset (~90MB, CC BY-NC-SA 4.0) is downloaded via scripts/download_data.py
+# Raw Datasets (Not committed to Git)
 data/raw/
-data/processed/
 data/*.zip
 data/*.csv
-*.joblib
+
 
 # OS & Editor files
 .DS_Store

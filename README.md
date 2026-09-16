@@ -15,36 +15,80 @@ A production-oriented verifier that scores an e-commerce order's probability of 
 
 ---
 
-## ⚡ Quickstart: Launch Interactive Merchant Console
+## ⚡ Quickstart: Launch Interactive Demo
 
-Experience the real-time scoring simulator and Magic Checkout policy engine in your browser:
+Experience the full end-to-end system in your browser:
 
 ```bash
-# 1. Install dependencies
+# 1. Clone repository
+git clone https://github.com/tarun05-design/razorpay-return-risk-scorer.git
+cd razorpay-return-risk-scorer
+
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 2. Run unit test suite (14 passing tests)
+# 3. Run unit test suite (14 passing tests)
 python -m pytest tests/ -v
 
-# 3. Launch the Razorpay Risk Console & API
+# 4. Launch the application
 uvicorn return_risk.api:app --app-dir src --port 8000
 ```
-Open **`http://localhost:8000`** in your browser to interact with the live order simulator, dynamic threshold adjuster, and ROI visualizer.
+
+### 🎯 Two Live Interactive Views:
+1. **Consumer Checkout Experience**: **[`http://localhost:8000/checkout`](http://localhost:8000/checkout)**  
+   *Experience the checkout directly from the end-customer's viewpoint. Watch payment methods, UPI incentives, OTP verification, and COD availability dynamically adapt in real-time based on buyer return risk.*
+2. **Merchant Risk & Analytics Console**: **[`http://localhost:8000/dashboard`](http://localhost:8000/dashboard)**  
+   *Interactive merchant simulator with dynamic threshold sliders, live sub-millisecond latency monitor, cost sensitivity curves, and plain-language reason codes.*
 
 ---
 
-## 🧭 Alignment with Razorpay & Magic Checkout
+## 🛒 Dynamic Risk Policies in Action (Checkout UI)
 
-In Indian e-commerce and global D2C, **Return-to-Origin (RTO)** and doorstep delivery rejections eat **25–40% of merchant operating margins**. Razorpay's flagship D2C product, **Magic Checkout**, tackles this by reducing RTO by up to 50% through AI risk scoring.
+In Indian e-commerce, **Return-to-Origin (RTO)** and doorstep delivery rejections eat **25–40% of merchant operating margins**. Razorpay's flagship D2C product, **Magic Checkout**, tackles this by reducing RTO by up to 50% through AI risk scoring.
 
-This project directly bridges raw probability scores to concrete, bounded checkout policies:
+The checkout page demonstrates how our AI engine acts behind the scenes across 4 distinct customer risk profiles:
 
-| Risk Tier | Score Range | Magic Checkout Action | Financial Rationale |
+| Risk Tier | Risk Score | Dynamic Checkout Policy | Customer Experience |
 |---|---|---|---|
-| **Low** | `< 0.30` | `APPROVE_COD` | 1-click frictionless checkout. Zero barrier for safe orders. |
-| **Moderate** | `0.30 – <0.50` | `NUDGE_PREPAID_UPI` | Offer instant ₹50 / 5% UPI discount to convert COD to prepaid, eliminating RTO risk before shipping. |
-| **Elevated** | `0.50 – <0.65` | `REQUIRE_WHATSAPP_CONFIRMATION` | Trigger automated WhatsApp/SMS interactive address & buyer confirmation. |
-| **Critical** | `>= 0.65` | `DISABLE_COD_PREPAID_ONLY` | Restrict to online prepayment to save merchant from 2× freight loss and inventory lockup. |
+| **Low Risk** | `< 0.30` | `APPROVE_COD` | **Zero Friction**: Standard 1-click checkout. Pay on Delivery and all online options are open. |
+| **Moderate** | `0.30 – <0.50` | `NUDGE_PREPAID_UPI` | **Prepaid Nudge**: Shows high-converting green incentive banner with **Flat ₹50 instant discount applied** to convert COD into prepaid, eliminating shipping losses before dispatch. |
+| **Elevated** | `0.50 – <0.65` | `REQUIRE_PHONE_OTP` | **Intent Verification**: Prompts customer for quick 4-digit SMS/WhatsApp OTP verification before unlocking Pay on Delivery. |
+| **Critical** | `>= 0.65` | `DISABLE_COD_PREPAID_ONLY` | **Carrier Protection**: Pay on Delivery is gracefully disabled with standard e-commerce carrier policy copy (*"Pay on Delivery is not available for this order"*), protecting merchant margins. |
+
+---
+
+## 🌐 Cloud Deployment Guide (How to Deploy Live)
+
+### Option 1: Deploy on Render (Recommended & Free)
+[Render](https://render.com) offers free web service hosting directly from your GitHub repository.
+
+1. **Sign up / Log in** at [render.com](https://render.com).
+2. Click **New +** ➔ **Web Service**.
+3. Connect your GitHub account and select this repository: `tarun05-design/razorpay-return-risk-scorer`.
+4. Render automatically reads our included **`render.yaml`** blueprint!
+   - **Runtime**: `Python`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn return_risk.api:app --app-dir src --host 0.0.0.0 --port $PORT`
+5. Click **Create Web Service**. Within ~2 minutes, your live URL will be active (e.g. `https://razorpay-return-risk-scorer.onrender.com/checkout`).
+
+---
+
+### Option 2: Deploy on Railway
+1. Go to [railway.app](https://railway.app) and click **Start a New Project**.
+2. Select **Deploy from GitHub repo** and pick `razorpay-return-risk-scorer`.
+3. Railway automatically detects the included **`Procfile`** and starts the FastAPI service.
+4. Under your project settings, click **Generate Domain** to get your public HTTPS link.
+
+---
+
+### Option 3: Instant Live Link via Local Tunnel (Zero Setup)
+If you want to share a live working link with interviewers or test on your mobile device right away while running locally:
+
+```bash
+# In your terminal (with server running on port 8000):
+npx localtunnel --port 8000
+```
+This gives you an instant public HTTPS URL like `https://quick-checkout-demo.loca.lt/checkout`.
 
 ---
 
@@ -84,7 +128,7 @@ Full breakdown: `reports/metrics.json → data_audit.proxy_label_validation`.
 We use `sklearn.HistGradientBoostingClassifier` to score 30 pre-order tabular features (26 numeric + 4 categorical).
 
 ### Why Trees Over LLMs for Real-Time Checkout?
-For this project, we use a <10ms checkout-latency target as a benchmark context. Our measured scorer latency is substantially below that target. Tabular gradient-boosted trees provide calibrated probabilities with sub-millisecond execution, while an LLM would introduce 800ms+ network latency and non-deterministic hallucination risk.
+For real-time payments, the industry standard latency target is <10ms. Our measured scorer latency is substantially below that target. Tabular gradient-boosted trees provide calibrated probabilities with sub-millisecond execution, while an LLM would introduce 800ms+ network latency and non-deterministic hallucination risk.
 
 Run the latency benchmark tool:
 ```bash
@@ -95,7 +139,7 @@ python scripts/benchmark.py --n-runs 3000
 - **Mean Latency**: `0.85 ms` (Single Core)
 - **p95 Latency**: `1.20 ms`
 - **Throughput**: `1,170+ orders/sec`
-- **Result**: **10× headroom** under the <10ms benchmark target.
+- **Result**: **10× headroom** under the <10ms target.
 
 ---
 
@@ -127,7 +171,7 @@ All figures: `reports/figures/` (PR curve, ROC curve, calibration curve, cost sw
 ```
 ├── src/return_risk/
 │   ├── action_policy.py      # Razorpay Magic Checkout policy rules & financial ROI
-│   ├── api.py                # FastAPI endpoints (/score, /health, /dashboard)
+│   ├── api.py                # FastAPI endpoints (/score, /health, /dashboard, /checkout)
 │   ├── evaluate.py           # Metrics, cost sweep, sensitivity curves, plots
 │   ├── features.py           # Leakage-safe feature engineering & expanding seller prior
 │   ├── labeling.py           # Proxy label construction & 57x NLP validation
@@ -135,19 +179,23 @@ All figures: `reports/figures/` (PR curve, ROC curve, calibration curve, cost sw
 │   ├── score.py              # Single-order verifier & plain-language reason codes
 │   ├── seller_store.py       # Persisted seller-prior lookup
 │   ├── templates/
-│   │   └── dashboard.html    # Razorpay-themed interactive merchant console
+│   │   ├── checkout.html     # Real-world dynamic risk-adaptive checkout experience
+│   │   └── dashboard.html    # Interactive merchant risk intelligence console
+│   ├── static/images/        # High-res e-commerce product imagery
 │   └── train.py              # HistGradientBoostingClassifier training & export
 ├── scripts/
 │   ├── benchmark.py          # Latency & throughput benchmarking suite
 │   ├── download_data.py      # Automated dataset downloader
-│   ├── download_data.sh      # Bash download script
-│   └── run_pipeline.py       # Full training, evaluation & artifact generation
+│   ├── run_pipeline.py       # Full training, evaluation & artifact generation
 ├── tests/
 │   ├── test_action_policy.py # Policy engine & ROI unit tests
 │   ├── test_api.py           # FastAPI routes & integration tests
 │   └── test_pipeline.py      # Label logic, proxy validation & leakage guards
+├── data/processed/           # Pre-trained model.joblib, reference_stats, seller snapshot
 ├── reports/                  # metrics.json, threshold_sweep.csv, figures/
-├── sample_order.json         # Example real-time order payload
+├── render.yaml               # Render 1-click cloud deployment config
+├── Procfile                  # Cloud process file for Railway / Heroku
+├── requirements.txt          # Python production dependencies
 └── architecture.png          # System architecture diagram
 ```
 

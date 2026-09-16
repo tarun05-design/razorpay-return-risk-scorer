@@ -9,7 +9,7 @@
 **Track 02 — AI Risk Manager** · Razorpay AI Buildathon  
 *Stop the merchant losing money to fraud, returns and chargebacks.*
 
-A production-oriented verifier that scores an e-commerce order's probability of turning into a return/refund/cancellation-style loss, at order time — with a measured precision/recall on a held-out test set, an honest false-positive cost sensitivity model, and an automated **Razorpay Magic Checkout** policy action engine.
+A production-oriented verifier that scores an e-commerce order's probability of turning into a return/refund/cancellation-style loss, at order time with a measured precision/recall on a held-out test set, an honest false-positive cost sensitivity model, and an automated **Razorpay Magic Checkout** policy action engine.
 
 ![architecture](architecture.png)
 

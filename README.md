@@ -59,7 +59,22 @@ The checkout page demonstrates how our AI engine acts behind the scenes across 4
 
 ## 🌐 Cloud Deployment Guide (How to Deploy Live)
 
-### Option 1: Deploy on Render (Recommended & Free)
+### Option 1: Deploy Checkout on Vercel (Instant Static Site — Recommended)
+The checkout page is fully self-contained as a high-performance static web app with responsive UI, dynamic profile switchers, and product imagery:
+
+1. Go to **[vercel.com](https://vercel.com)** and log in with your GitHub account.
+2. Click **"Add New..."** ➔ **"Project"**.
+3. Select **`tarun05-design/razorpay-return-risk-scorer`**.
+4. Vercel automatically detects the static setup (`index.html` + `vercel.json`):
+   - **Framework Preset**: *Other*
+   - **Root Directory**: `./`
+5. Click **"Deploy"**.
+6. Within **~15 seconds**, your live public URL is active:
+   - `https://<your-project>.vercel.app` (or `/checkout`)
+
+---
+
+### Option 2: Full Stack Python Service on Render (Free)
 [Render](https://render.com) offers free web service hosting directly from your GitHub repository.
 
 1. **Sign up / Log in** at [render.com](https://render.com).

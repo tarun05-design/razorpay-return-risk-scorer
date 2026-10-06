@@ -70,6 +70,10 @@ A **sub-millisecond risk scoring and dynamic checkout policy engine** inspired b
 
 ## 🏗️ Architecture
 
+### 1. Data Pipeline & Offline Model Training Architecture
+![Return-Risk Scorer Architecture](architecture.png)
+
+### 2. Real-Time Scoring & Dynamic Checkout Policy Engine
 ```
 [ Merchant Checkout / Frontend ]
                │

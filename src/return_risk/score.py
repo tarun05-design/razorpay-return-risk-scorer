@@ -109,6 +109,14 @@ def _reason_codes(row: dict, reference_stats: dict) -> list[str]:
 
 class ReturnRiskScorer:
     def __init__(self, model_path: Path, seller_store_path: Path, reference_stats_path: Path):
+        import sys
+        try:
+            import sklearn._loss.loss as _loss_loss
+            sys.modules["_loss"] = _loss_loss
+            sys.modules["_loss.loss"] = _loss_loss
+        except Exception:
+            pass
+
         import joblib
         self.model = joblib.load(model_path)
         self.seller_lookup = SellerPriorLookup(seller_store_path)

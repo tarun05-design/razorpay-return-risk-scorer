@@ -306,23 +306,36 @@ def lift_by_decile(
     return pd.DataFrame(rows)
 
 
+def wilson_ci(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """Calculates Wilson score 95% confidence interval for a binomial proportion."""
+    if n == 0:
+        return 0.0, 0.0
+    p = k / n
+    denom = 1 + (z ** 2) / n
+    center = (p + (z ** 2) / (2 * n)) / denom
+    margin = (z * np.sqrt((p * (1 - p) / n) + (z ** 2) / (4 * (n ** 2)))) / denom
+    return round(float(max(0.0, center - margin)), 4), round(float(min(1.0, center + margin)), 4)
+
+
 def policy_tier_distribution(
     y_true: np.ndarray,
     y_prob: np.ndarray,
     potential_loss: np.ndarray,
     total_price: np.ndarray,
     total_freight: np.ndarray,
-    cost_optimal_threshold: float = 0.598,
+    cost_optimal_threshold: float = 0.647,
 ) -> pd.DataFrame:
     """Assigns every test-set order to a policy tier based on its predicted
-    risk score, and reports count, actual positive rate, and estimated
-    net R$ impact per tier.  This shows how the operational policy
-    distributes orders across the four action tiers."""
+    risk score, and reports count, actual positive rate, Wilson 95% CI, and estimated
+    net R$ impact per tier."""
     y_true = np.asarray(y_true)
     y_prob = np.asarray(y_prob)
     potential_loss = np.asarray(potential_loss)
 
-    tier_upper = max(0.65, cost_optimal_threshold)
+    tier_upper = float(cost_optimal_threshold)
+    elevated_label = f"Elevated (0.50–{tier_upper:.3f})"
+    critical_label = f"Critical (≥{tier_upper:.3f})"
+
     tiers = []
     for i in range(len(y_true)):
         score = y_prob[i]
@@ -331,9 +344,9 @@ def policy_tier_distribution(
         elif score < 0.50:
             tiers.append("Moderate (0.30–0.50)")
         elif score < tier_upper:
-            tiers.append("Elevated (0.50–{:.2f})".format(tier_upper))
+            tiers.append(elevated_label)
         else:
-            tiers.append("Critical (≥{:.2f})".format(tier_upper))
+            tiers.append(critical_label)
 
     df = pd.DataFrame({
         "tier": tiers,
@@ -346,8 +359,8 @@ def policy_tier_distribution(
     tier_order = [
         "Low (<0.30)",
         "Moderate (0.30–0.50)",
-        "Elevated (0.50–{:.2f})".format(tier_upper),
-        "Critical (≥{:.2f})".format(tier_upper),
+        elevated_label,
+        critical_label,
     ]
     for tier_name in tier_order:
         sub = df[df["tier"] == tier_name]
@@ -356,13 +369,31 @@ def policy_tier_distribution(
         n_orders = len(sub)
         n_pos = int(sub["y_true"].sum())
         actual_rate = round(float(sub["y_true"].mean()), 4)
+        ci_lo, ci_hi = wilson_ci(n_pos, n_orders)
         total_loss_in_tier = float(sub.loc[sub["y_true"] == 1, "potential_loss"].sum())
+
+        # Net financial impact (in R$):
+        # - Low: Unmitigated return losses (frictionless checkout)
+        # - Moderate: 40% of returns prevented via prepaid conversion nudge minus discount costs
+        # - Elevated: 30% of returns prevented via 2-way verification minus verification cost (R$ 2/order)
+        # - Critical: Full prevention of COD return losses minus intervention cost (R$ 25/order)
+        if "Low" in tier_name:
+            net_impact = -total_loss_in_tier
+        elif "Moderate" in tier_name:
+            net_impact = (total_loss_in_tier * 0.40) - (n_orders * 5.0)
+        elif "Elevated" in tier_name:
+            net_impact = (total_loss_in_tier * 0.30) - (n_orders * 2.0)
+        else:  # Critical
+            net_impact = total_loss_in_tier - (n_orders * 25.0)
+
         summary_rows.append({
             "tier": tier_name,
             "n_orders": n_orders,
             "n_positives": n_pos,
             "actual_positive_rate": actual_rate,
+            "wilson_ci_95": [ci_lo, ci_hi],
             "total_potential_loss_BRL": round(total_loss_in_tier, 2),
+            "net_financial_impact_BRL": round(net_impact, 2),
             "pct_of_all_orders": round(n_orders / len(y_true) * 100, 1),
         })
     return pd.DataFrame(summary_rows)

@@ -1,5 +1,5 @@
-tier,n_orders,n_positives,actual_positive_rate,total_potential_loss_BRL,pct_of_all_orders
-Low (<0.30),16782,1645,0.098,120533.94,94.8
-Moderate (0.30–0.50),694,198,0.2853,28454.2,3.9
-Elevated (0.50–0.65),135,57,0.4222,10482.37,0.8
-Critical (≥0.65),100,89,0.89,6055.31,0.6
+tier,n_orders,n_positives,actual_positive_rate,wilson_ci_95,total_potential_loss_BRL,net_financial_impact_BRL,pct_of_all_orders
+Low (<0.30),16782,1645,0.098,"[0.0936, 0.1026]",120533.94,-120533.94,94.8
+Moderate (0.30–0.50),694,198,0.2853,"[0.253, 0.32]",28454.2,7911.68,3.9
+Elevated (0.50–0.647),134,56,0.4179,"[0.3378, 0.5026]",10379.02,2845.71,0.8
+Critical (≥0.647),101,90,0.8911,"[0.8154, 0.9381]",6158.66,3633.66,0.6

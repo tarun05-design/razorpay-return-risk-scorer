@@ -502,12 +502,15 @@
     <div class="advisor-modal-body">
 
       <!-- SCENARIO SWITCHER (REAL TEST ORDERS) -->
-      <div class="scenario-selector-title">Select Held-Out Test Order:</div>
+      <div class="scenario-selector-title">Select Held-Out Test Order (Illustrative Examples):</div>
+      <div style="font-size:11px; color:var(--text-secondary); margin-bottom:10px; line-height:1.4;">
+        <em>Note: The four orders below are illustrative test orders drawn from the Olist held-out test set; the full statistical evaluation across all 17,711 held-out test orders provides the real evidence.</em>
+      </div>
       <div class="scenario-grid">
         <button class="scenario-btn active" id="btn-low" onclick="selectScenario('low')">
           <div>
             <div class="sc-title">1. Order #004617 (Low Risk)</div>
-            <div class="sc-sub">Single item · Delivered cleanly · 0% loss</div>
+            <div class="sc-sub">Single item · Clean delivery · 5-star review</div>
           </div>
           <span class="sc-badge" style="background:#ecfdf5; color:#059669;">Tier 1: Approve COD</span>
         </button>
@@ -515,7 +518,7 @@
         <button class="scenario-btn" id="btn-moderate" onclick="selectScenario('moderate')">
           <div>
             <div class="sc-title">2. Order #99daac (Moderate Risk)</div>
-            <div class="sc-sub">Split-shipment · Missing item dispute</div>
+            <div class="sc-sub">Split sellers · Review reports missing parcel</div>
           </div>
           <span class="sc-badge" style="background:#eff6ff; color:#2563eb;">Tier 2: UPI Nudge</span>
         </button>
@@ -523,7 +526,7 @@
         <button class="scenario-btn" id="btn-elevated" onclick="selectScenario('elevated')">
           <div>
             <div class="sc-title">3. Order #64ccc9 (Elevated Risk)</div>
-            <div class="sc-sub">2 sellers · 45-day transit · Return requested</div>
+            <div class="sc-sub">45-day transit · Filters buyers unwilling to wait</div>
           </div>
           <span class="sc-badge" style="background:#fffbeb; color:#d97706;">Tier 3: OTP Verify</span>
         </button>
@@ -531,7 +534,7 @@
         <button class="scenario-btn" id="btn-critical" onclick="selectScenario('critical')">
           <div>
             <div class="sc-title">4. Order #24914f (Critical Risk)</div>
-            <div class="sc-sub">High-risk seller · Actual return loss (dispute)</div>
+            <div class="sc-sub">Review reports return request (cartridges)</div>
           </div>
           <span class="sc-badge" style="background:#fef2f2; color:#dc2626;">Tier 4: COD Restricted</span>
         </button>
@@ -606,8 +609,8 @@
         ],
         groundTruth: {
           label: 0,
-          summary: 'Delivered cleanly · 0% loss · Buyer gave 5-star review with zero complaints.',
-          review: 'Real customer review: "Ótimo produto, chegou bem antes do prazo!" (Great product, arrived well before deadline!)'
+          summary: 'Delivered cleanly · 0% loss · Customer review reports 5-star delivery satisfaction.',
+          review: 'Customer review text: "Ótimo produto, chegou bem antes do prazo!" (Great product, arrived well before deadline!)'
         },
         payload: {
           order_purchase_timestamp: "2018-05-29 19:22:17",
@@ -641,8 +644,8 @@
         ],
         groundTruth: {
           label: 1,
-          summary: 'Split-shipment delivery friction! One parcel arrived, second was delayed, buyer lodged dispute.',
-          review: 'Real customer review: "O produto Inizzio Amore foi entregue mas o perfume não foi entregue! Espero uma resposta." (One item delivered, second missing!)'
+          summary: 'The customer review reports split-shipment delivery friction where one item was delivered but the second was missing.',
+          review: 'Customer review text: "O produto Inizzio Amore foi entregue no dia 01/06 mas o perfume não foi entregue! Espero uma resposta." (The review reports one item arrived while second parcel was missing!)'
         },
         payload: {
           order_purchase_timestamp: "2018-05-29 19:12:11",
@@ -679,8 +682,8 @@
         ],
         groundTruth: {
           label: 1,
-          summary: 'Long 45-day transit window to Bahia with multiple sellers. Turned into return/dispute loss.',
-          review: 'Real customer review: 1-star review recorded due to extreme transit delay and buyer rejection.'
+          summary: 'Long 45-day transit window across 2 sellers to Bahia. The review reports delivery dissatisfaction resulting in return loss.',
+          review: 'Action rationale: while automated WhatsApp/SMS verification cannot shorten logistics transit times, it filters out buyers unwilling to wait before freight is spent, preventing costly reverse logistics.'
         },
         payload: {
           order_purchase_timestamp: "2018-05-31 10:42:31",
@@ -719,8 +722,8 @@
         ],
         groundTruth: {
           label: 1,
-          summary: 'Defective merchandise & return request that resulted in total merchant loss!',
-          review: 'Real customer review: "Recebi meu pedido, três cartuchos para impressora HP, porém eram recarregados. Solicitei a devolução e nada." (Buyer received refilled cartridges, requested return, turned into loss!)'
+          summary: 'High-risk seller + long transit. The customer review reports defective refilled cartridges and an unfulfilled return request, turning into total merchant loss.',
+          review: 'Customer review text: "Recebi meu pedido, três cartuchos para impressora HP originais, porém a mesma recusou informando que eram recarregados. Solicitei a devolução e nada." (Buyer received refilled cartridges, requested return, resulting in merchant dispute loss!)'
         },
         payload: {
           order_purchase_timestamp: "2018-06-20 18:08:56",

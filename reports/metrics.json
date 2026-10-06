@@ -142,7 +142,12 @@
       "n_orders": 16782,
       "n_positives": 1645,
       "actual_positive_rate": 0.098,
+      "wilson_ci_95": [
+        0.0936,
+        0.1026
+      ],
       "total_potential_loss_BRL": 120533.94,
+      "net_financial_impact_BRL": -120533.94,
       "pct_of_all_orders": 94.8
     },
     {
@@ -150,23 +155,38 @@
       "n_orders": 694,
       "n_positives": 198,
       "actual_positive_rate": 0.2853,
+      "wilson_ci_95": [
+        0.253,
+        0.32
+      ],
       "total_potential_loss_BRL": 28454.2,
+      "net_financial_impact_BRL": 7911.68,
       "pct_of_all_orders": 3.9
     },
     {
-      "tier": "Elevated (0.50\u20130.65)",
-      "n_orders": 135,
-      "n_positives": 57,
-      "actual_positive_rate": 0.4222,
-      "total_potential_loss_BRL": 10482.37,
+      "tier": "Elevated (0.50\u20130.647)",
+      "n_orders": 134,
+      "n_positives": 56,
+      "actual_positive_rate": 0.4179,
+      "wilson_ci_95": [
+        0.3378,
+        0.5026
+      ],
+      "total_potential_loss_BRL": 10379.02,
+      "net_financial_impact_BRL": 2845.71,
       "pct_of_all_orders": 0.8
     },
     {
-      "tier": "Critical (\u22650.65)",
-      "n_orders": 100,
-      "n_positives": 89,
-      "actual_positive_rate": 0.89,
-      "total_potential_loss_BRL": 6055.31,
+      "tier": "Critical (\u22650.647)",
+      "n_orders": 101,
+      "n_positives": 90,
+      "actual_positive_rate": 0.8911,
+      "wilson_ci_95": [
+        0.8154,
+        0.9381
+      ],
+      "total_potential_loss_BRL": 6158.66,
+      "net_financial_impact_BRL": 3633.66,
       "pct_of_all_orders": 0.6
     }
   ],

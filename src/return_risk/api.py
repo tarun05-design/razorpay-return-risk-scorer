@@ -31,19 +31,43 @@ REPORTS_DIR = ROOT / "reports"
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
+PACKAGE_DATA_DIR = Path(__file__).resolve().parent / "data"
+
 _scorer: Optional[ReturnRiskScorer] = None
+_scorer_error: Optional[str] = None
 
 
 def _get_scorer() -> Optional[ReturnRiskScorer]:
-    global _scorer
+    global _scorer, _scorer_error
     if _scorer is None:
+        candidate_dirs = [
+            PACKAGE_DATA_DIR,
+            PROCESSED_DIR,
+            Path("/var/task/data/processed"),
+            Path("/var/task/src/return_risk/data"),
+            Path.cwd() / "data" / "processed",
+        ]
+        chosen_dir = None
+        for d in candidate_dirs:
+            if (d / "model.joblib").exists():
+                chosen_dir = d
+                break
+
+        if chosen_dir is None:
+            _scorer_error = f"Model artifact not found in candidates: {[str(d) for d in candidate_dirs]}"
+            print(f"Notice: {_scorer_error}")
+            return None
+
         try:
             _scorer = ReturnRiskScorer(
-                model_path=PROCESSED_DIR / "model.joblib",
-                seller_store_path=PROCESSED_DIR / "seller_prior_snapshot.csv",
-                reference_stats_path=PROCESSED_DIR / "reference_stats.json",
+                model_path=chosen_dir / "model.joblib",
+                seller_store_path=chosen_dir / "seller_prior_snapshot.csv",
+                reference_stats_path=chosen_dir / "reference_stats.json",
             )
+            _scorer_error = None
         except Exception as e:
+            import traceback
+            _scorer_error = f"{type(e).__name__}: {str(e)}"
             print(f"Notice: Model loading deferred or unavailable: {e}")
     return _scorer
 
@@ -123,6 +147,7 @@ def health():
         "status": "ok",
         "track": "Track 02 — AI Risk Manager",
         "model_loaded": scorer is not None,
+        "load_error": _scorer_error,
         "features_supported": 30,
     }
 

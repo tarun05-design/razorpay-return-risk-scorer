@@ -11,8 +11,6 @@
 **Track 02 — AI Risk Manager** · Razorpay AI Buildathon Submission  
 *An independent open-source prototype inspired by Razorpay Magic Checkout risk architectures.*
 
-[ 🚀 **Open Interactive Live Demo** ](https://razorpay-return-risk-scorer.vercel.app/) &nbsp;·&nbsp; [ 📊 **Local Merchant Risk Console** ](http://localhost:8000/dashboard)
-
 ---
 
 ### ⚡ Key Results (Held-Out Test Set)

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/score", "destination": "/api/index.py" },
+    { "source": "/health", "destination": "/api/index.py" },
+    { "source": "/dashboard", "destination": "/api/index.py" },
+    { "source": "/metrics/(.*)", "destination": "/api/index.py" }
+  ]
+}

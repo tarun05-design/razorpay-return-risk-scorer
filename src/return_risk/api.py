@@ -14,6 +14,7 @@ Then:
 from __future__ import annotations
 
 import json
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
@@ -30,16 +31,43 @@ REPORTS_DIR = ROOT / "reports"
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
+_scorer: Optional[ReturnRiskScorer] = None
+
+
+def _get_scorer() -> Optional[ReturnRiskScorer]:
+    global _scorer
+    if _scorer is None:
+        try:
+            _scorer = ReturnRiskScorer(
+                model_path=PROCESSED_DIR / "model.joblib",
+                seller_store_path=PROCESSED_DIR / "seller_prior_snapshot.csv",
+                reference_stats_path=PROCESSED_DIR / "reference_stats.json",
+            )
+        except Exception as e:
+            print(f"Notice: Model loading deferred or unavailable: {e}")
+    return _scorer
+
+
+def _load_scorer() -> None:
+    _get_scorer()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    _load_scorer()
+    yield
+
+
 app = FastAPI(
     title="Razorpay AI Buildathon — Return Risk Scorer",
     description="Real-time return risk scoring & Magic Checkout action policy engine for Track 02 (AI Risk Manager)",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Mount static files for product images and assets
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-_scorer: Optional[ReturnRiskScorer] = None
 
 
 class OrderRequest(BaseModel):
@@ -65,25 +93,6 @@ class OrderRequest(BaseModel):
     total_payment_value: float
     n_payment_methods: int
     threshold: Optional[float] = None
-
-
-def _get_scorer() -> Optional[ReturnRiskScorer]:
-    global _scorer
-    if _scorer is None:
-        try:
-            _scorer = ReturnRiskScorer(
-                model_path=PROCESSED_DIR / "model.joblib",
-                seller_store_path=PROCESSED_DIR / "seller_prior_snapshot.csv",
-                reference_stats_path=PROCESSED_DIR / "reference_stats.json",
-            )
-        except Exception as e:
-            print(f"Notice: Model loading deferred or unavailable: {e}")
-    return _scorer
-
-
-@app.on_event("startup")
-def _load_scorer() -> None:
-    _get_scorer()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -135,7 +144,7 @@ def score_order(order: OrderRequest):
         raise HTTPException(503, "Model not loaded yet")
     payload = order.model_dump(exclude={"threshold"})
     threshold = order.threshold if order.threshold is not None else scorer.reference_stats.get(
-        "cost_optimal_threshold", 0.598
+        "cost_optimal_threshold", 0.65
     )
     try:
         result = scorer.score(payload, threshold=threshold)

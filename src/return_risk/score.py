@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -89,14 +89,14 @@ def _reason_codes(row: dict, reference_stats: dict) -> list[str]:
     elif row["seller_prior_n_orders"] < 5:
         reasons.append("New/thin-history seller — scored using platform base rate, less certainty")
 
-    if row["n_items"] >= reference_stats["n_items_p90"]:
-        reasons.append(f"Unusually large order ({row['n_items']} items)")
+    if row["n_items"] > 1 and row["n_items"] >= reference_stats["n_items_p90"]:
+        reasons.append(f"Unusually large order ({int(row['n_items'])} items)")
 
     if row["n_distinct_sellers"] > 1:
-        reasons.append(f"Order splits across {row['n_distinct_sellers']} sellers (split-shipment risk)")
+        reasons.append(f"Order splits across {int(row['n_distinct_sellers'])} sellers (split-shipment risk)")
 
     if row["promised_delivery_days"] >= reference_stats["promised_delivery_days_p90"]:
-        reasons.append(f"Long promised delivery window ({row['promised_delivery_days']} days)")
+        reasons.append(f"Long promised delivery window ({int(row['promised_delivery_days'])} days)")
 
     if row.get("freight_to_price_ratio") and row["freight_to_price_ratio"] > reference_stats["freight_ratio_p90"]:
         reasons.append("Freight cost is unusually high relative to order value")
@@ -115,10 +115,15 @@ class ReturnRiskScorer:
         with open(reference_stats_path) as f:
             self.reference_stats = json.load(f)
 
-    def score(self, order: dict, threshold: float = 0.598) -> RiskResult:
+    def score(self, order: dict, threshold: Optional[float] = None) -> RiskResult:
         missing = [f for f in REQUIRED_ORDER_FIELDS if f not in order]
         if missing:
             raise ValueError(f"Missing required order fields: {missing}")
+
+        effective_threshold = (
+            threshold if threshold is not None
+            else self.reference_stats.get("cost_optimal_threshold", 0.65)
+        )
 
         spb, spn = self.seller_lookup.lookup(order["seller_id"])
         row = _derive_row(order, spb, spn)
@@ -128,19 +133,19 @@ class ReturnRiskScorer:
             X[c] = X[c].fillna("unknown").astype("category")
 
         prob = float(self.model.predict_proba(X)[:, 1][0])
-        flagged = prob >= threshold
+        flagged = prob >= effective_threshold
         reasons = _reason_codes(row, self.reference_stats)
         action = evaluate_action_policy(
             risk_score=prob,
             total_price=float(order.get("total_price", 100.0)),
             total_freight=float(order.get("total_freight", 20.0)),
-            cost_optimal_threshold=threshold,
+            cost_optimal_threshold=effective_threshold,
         )
 
         return RiskResult(
             risk_score=prob,
             flagged=flagged,
-            threshold_used=threshold,
+            threshold_used=effective_threshold,
             reason_codes=reasons,
             action=action,
         )

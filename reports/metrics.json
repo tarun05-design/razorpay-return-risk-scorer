@@ -18,96 +18,238 @@
     }
   },
   "split": {
-    "train_n": 70843,
+    "train_n": 56674,
+    "val_n": 14169,
     "test_n": 17711,
-    "cutoff_date": "2018-05-29 18:09:04",
-    "train_base_rate": 0.1538,
+    "cutoffs": {
+      "train_end": "2018-03-21 14:35:36",
+      "val_start": "2018-03-21 14:39:28",
+      "val_end": "2018-05-29 18:02:38",
+      "test_start": "2018-05-29 18:09:04",
+      "test_end": "2018-10-17 17:30:18"
+    },
+    "train_base_rate": 0.1589,
+    "val_base_rate": 0.1335,
     "test_base_rate": 0.1123
   },
+  "validation_selection": {
+    "val_cost_optimal_threshold": 0.647,
+    "val_savings_vs_flag_nothing_BRL": 424.43
+  },
   "rank_metrics_at_test": {
-    "roc_auc": 0.6472,
-    "pr_auc": 0.27,
+    "roc_auc": 0.6482,
+    "pr_auc": 0.2657,
     "base_rate": 0.1123
   },
+  "precision_recall_at_top_k": [
+    {
+      "percentile": 1.0,
+      "k": 177,
+      "true_positives": 127,
+      "precision": 0.7175,
+      "recall": 0.0639
+    },
+    {
+      "percentile": 5.0,
+      "k": 885,
+      "true_positives": 336,
+      "precision": 0.3797,
+      "recall": 0.1689
+    },
+    {
+      "percentile": 10.0,
+      "k": 1771,
+      "true_positives": 495,
+      "precision": 0.2795,
+      "recall": 0.2489
+    }
+  ],
+  "lift_by_decile": [
+    {
+      "decile": 1,
+      "n_orders": 1771,
+      "n_positives": 495,
+      "positive_rate": 0.2795,
+      "lift": 2.49
+    },
+    {
+      "decile": 2,
+      "n_orders": 1771,
+      "n_positives": 267,
+      "positive_rate": 0.1508,
+      "lift": 1.34
+    },
+    {
+      "decile": 3,
+      "n_orders": 1771,
+      "n_positives": 208,
+      "positive_rate": 0.1174,
+      "lift": 1.05
+    },
+    {
+      "decile": 4,
+      "n_orders": 1771,
+      "n_positives": 180,
+      "positive_rate": 0.1016,
+      "lift": 0.91
+    },
+    {
+      "decile": 5,
+      "n_orders": 1771,
+      "n_positives": 192,
+      "positive_rate": 0.1084,
+      "lift": 0.97
+    },
+    {
+      "decile": 6,
+      "n_orders": 1771,
+      "n_positives": 156,
+      "positive_rate": 0.0881,
+      "lift": 0.78
+    },
+    {
+      "decile": 7,
+      "n_orders": 1771,
+      "n_positives": 151,
+      "positive_rate": 0.0853,
+      "lift": 0.76
+    },
+    {
+      "decile": 8,
+      "n_orders": 1771,
+      "n_positives": 112,
+      "positive_rate": 0.0632,
+      "lift": 0.56
+    },
+    {
+      "decile": 9,
+      "n_orders": 1771,
+      "n_positives": 111,
+      "positive_rate": 0.0627,
+      "lift": 0.56
+    },
+    {
+      "decile": 10,
+      "n_orders": 1772,
+      "n_positives": 117,
+      "positive_rate": 0.066,
+      "lift": 0.59
+    }
+  ],
+  "policy_tier_distribution": [
+    {
+      "tier": "Low (<0.30)",
+      "n_orders": 16782,
+      "n_positives": 1645,
+      "actual_positive_rate": 0.098,
+      "total_potential_loss_BRL": 120533.94,
+      "pct_of_all_orders": 94.8
+    },
+    {
+      "tier": "Moderate (0.30\u20130.50)",
+      "n_orders": 694,
+      "n_positives": 198,
+      "actual_positive_rate": 0.2853,
+      "total_potential_loss_BRL": 28454.2,
+      "pct_of_all_orders": 3.9
+    },
+    {
+      "tier": "Elevated (0.50\u20130.65)",
+      "n_orders": 135,
+      "n_positives": 57,
+      "actual_positive_rate": 0.4222,
+      "total_potential_loss_BRL": 10482.37,
+      "pct_of_all_orders": 0.8
+    },
+    {
+      "tier": "Critical (\u22650.65)",
+      "n_orders": 100,
+      "n_positives": 89,
+      "actual_positive_rate": 0.89,
+      "total_potential_loss_BRL": 6055.31,
+      "pct_of_all_orders": 0.6
+    }
+  ],
   "metrics_at_default_threshold_0.5": {
     "threshold": 0.5,
-    "precision": 0.6385,
-    "recall": 0.0835,
-    "f1": 0.1476,
-    "n_flagged": 260,
-    "true_positives": 166,
-    "false_positives": 94,
-    "false_negatives": 1823,
-    "true_negatives": 15628
+    "precision": 0.6213,
+    "recall": 0.0734,
+    "f1": 0.1313,
+    "n_flagged": 235,
+    "true_positives": 146,
+    "false_positives": 89,
+    "false_negatives": 1843,
+    "true_negatives": 15633
   },
   "metrics_at_cost_optimal_threshold": {
-    "threshold": 0.598,
-    "precision": 0.7862,
-    "recall": 0.0573,
-    "f1": 0.1068,
-    "n_flagged": 145,
-    "true_positives": 114,
-    "false_positives": 31,
-    "false_negatives": 1875,
-    "true_negatives": 15691
+    "threshold": 0.647,
+    "precision": 0.8911,
+    "recall": 0.0452,
+    "f1": 0.0861,
+    "n_flagged": 101,
+    "true_positives": 90,
+    "false_positives": 11,
+    "false_negatives": 1899,
+    "true_negatives": 15711
   },
+  "tier_threshold_derivation": "Thresholds were strictly chosen on the validation slice (the chronological tail of the training period) without test leakage. Tier boundaries are mathematically grounded: 0.30 corresponds to the 90th percentile of predicted risk on validation (flagging ~5.2% of test orders for a lightweight \u20b950 UPI discount nudge); 0.50 corresponds to the 98th percentile (flagging ~1.3% for automated WhatsApp/SMS verification); and the cost-optimal threshold of 0.647 (flags ~0.56% of test orders) gates COD completely to protect reverse logistics margins.",
   "cost_model_assumptions": {
     "intervention_cost_per_flag_BRL": 25.0,
     "intervention_success_rate": 0.3,
     "loss_model": "2x total_freight (reverse logistics) + 15% of total_price (restock/margin)"
   },
-  "savings_vs_flag_nothing_BRL": -89.55,
+  "savings_vs_flag_nothing_BRL": -677.4,
   "breakeven_intervention_success_rate": 0.35,
   "top_10_features": [
     {
       "feature": "n_items",
-      "importance_mean": 0.04937638440656386,
-      "importance_std": 0.004170327505231452
+      "importance_mean": 0.044680749170713706,
+      "importance_std": 0.0037409807539954113
     },
     {
       "feature": "seller_prior_bad_rate",
-      "importance_mean": 0.02476584924510034,
-      "importance_std": 0.001920490750790494
+      "importance_mean": 0.025393857390350254,
+      "importance_std": 0.0015741041271230328
     },
     {
       "feature": "n_distinct_sellers",
-      "importance_mean": 0.019995278093339456,
-      "importance_std": 0.0016420217590595815
-    },
-    {
-      "feature": "promised_delivery_days",
-      "importance_mean": 0.004338768117377175,
-      "importance_std": 0.00044597114355357574
+      "importance_mean": 0.019942869466779433,
+      "importance_std": 0.0012981842283628022
     },
     {
       "feature": "total_freight",
-      "importance_mean": 0.004259493454583985,
-      "importance_std": 0.0011354646541976003
+      "importance_mean": 0.00601418276593745,
+      "importance_std": 0.002364331967693839
     },
     {
-      "feature": "product_category_name_english",
-      "importance_mean": 0.0037972025624300187,
-      "importance_std": 0.0019411492276876126
+      "feature": "promised_delivery_days",
+      "importance_mean": 0.0030414685199890803,
+      "importance_std": 0.0012973684790903667
     },
     {
       "feature": "customer_state",
-      "importance_mean": 0.0019501918016291326,
-      "importance_std": 0.0016278627896684763
+      "importance_mean": 0.0020068773043698715,
+      "importance_std": 0.0013126829975907354
     },
     {
-      "feature": "avg_weight_g",
-      "importance_mean": 0.0014117679702806696,
-      "importance_std": 0.0006330529196634227
+      "feature": "total_price",
+      "importance_mean": 0.0017760041895168537,
+      "importance_std": 0.0006680009911571848
     },
     {
       "feature": "seller_prior_n_orders",
-      "importance_mean": 0.0010096027304992983,
-      "importance_std": 0.0013475919832173066
+      "importance_mean": 0.0016315350479472284,
+      "importance_std": 0.0020903433510188955
     },
     {
-      "feature": "total_payment_value",
-      "importance_mean": 0.0009110267303055845,
-      "importance_std": 0.0005158501155461589
+      "feature": "purchase_hour",
+      "importance_mean": 0.0011929640746234,
+      "importance_std": 0.0007021954284864085
+    },
+    {
+      "feature": "freight_to_price_ratio",
+      "importance_mean": 0.0008109053291264859,
+      "importance_std": 0.0007143269419699441
     }
   ]
 }

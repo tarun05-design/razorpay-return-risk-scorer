@@ -43,6 +43,7 @@ from sklearn.metrics import (
 )
 
 from .pipeline import ALL_FEATURE_COLUMNS
+from .action_policy import evaluate_action_policy
 
 
 def estimate_order_loss(df: pd.DataFrame, restock_margin_fraction: float = 0.15) -> pd.Series:
@@ -238,3 +239,173 @@ def make_sensitivity_figure(sensitivity_df: pd.DataFrame, out_dir: Path) -> None
     plt.title("Business case sensitivity to intervention effectiveness")
     plt.grid(alpha=0.3)
     plt.tight_layout(); plt.savefig(out_dir / "sensitivity_curve.png", dpi=140); plt.close()
+
+
+# ── New evaluation metrics ──────────────────────────────────────────────────
+
+
+def precision_recall_at_top_k(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    percentiles: tuple[float, ...] = (0.01, 0.05, 0.10),
+) -> list[dict]:
+    """Precision and recall when flagging the top k% of orders by predicted
+    risk.  This answers: 'if we only intervene on the riskiest 1/5/10% of
+    orders, how accurate are we?'"""
+    y_true = np.asarray(y_true)
+    y_prob = np.asarray(y_prob)
+    n = len(y_true)
+    total_positives = y_true.sum()
+    sorted_idx = np.argsort(-y_prob)  # descending
+
+    results = []
+    for pct in percentiles:
+        k = max(1, int(n * pct))
+        top_k_idx = sorted_idx[:k]
+        tp = y_true[top_k_idx].sum()
+        precision = float(tp / k) if k > 0 else 0.0
+        recall = float(tp / total_positives) if total_positives > 0 else 0.0
+        results.append({
+            "percentile": round(pct * 100, 1),
+            "k": int(k),
+            "true_positives": int(tp),
+            "precision": round(precision, 4),
+            "recall": round(recall, 4),
+        })
+    return results
+
+
+def lift_by_decile(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+) -> pd.DataFrame:
+    """Splits orders into 10 equal-sized bins by predicted risk (decile 1 =
+    highest risk) and reports the actual positive rate vs the base rate in
+    each bin.  Lift = (decile positive rate) / (overall positive rate)."""
+    y_true = np.asarray(y_true)
+    y_prob = np.asarray(y_prob)
+    n = len(y_true)
+    base_rate = y_true.mean()
+    sorted_idx = np.argsort(-y_prob)  # descending
+
+    rows = []
+    for d in range(10):
+        lo = int(n * d / 10)
+        hi = int(n * (d + 1) / 10)
+        idx = sorted_idx[lo:hi]
+        pos = y_true[idx].sum()
+        rate = pos / len(idx) if len(idx) > 0 else 0.0
+        lift = rate / base_rate if base_rate > 0 else 0.0
+        rows.append({
+            "decile": d + 1,
+            "n_orders": int(len(idx)),
+            "n_positives": int(pos),
+            "positive_rate": round(float(rate), 4),
+            "lift": round(float(lift), 2),
+        })
+    return pd.DataFrame(rows)
+
+
+def policy_tier_distribution(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    potential_loss: np.ndarray,
+    total_price: np.ndarray,
+    total_freight: np.ndarray,
+    cost_optimal_threshold: float = 0.598,
+) -> pd.DataFrame:
+    """Assigns every test-set order to a policy tier based on its predicted
+    risk score, and reports count, actual positive rate, and estimated
+    net R$ impact per tier.  This shows how the operational policy
+    distributes orders across the four action tiers."""
+    y_true = np.asarray(y_true)
+    y_prob = np.asarray(y_prob)
+    potential_loss = np.asarray(potential_loss)
+
+    tier_upper = max(0.65, cost_optimal_threshold)
+    tiers = []
+    for i in range(len(y_true)):
+        score = y_prob[i]
+        if score < 0.30:
+            tiers.append("Low (<0.30)")
+        elif score < 0.50:
+            tiers.append("Moderate (0.30–0.50)")
+        elif score < tier_upper:
+            tiers.append("Elevated (0.50–{:.2f})".format(tier_upper))
+        else:
+            tiers.append("Critical (≥{:.2f})".format(tier_upper))
+
+    df = pd.DataFrame({
+        "tier": tiers,
+        "y_true": y_true,
+        "y_prob": y_prob,
+        "potential_loss": potential_loss,
+    })
+
+    summary_rows = []
+    tier_order = [
+        "Low (<0.30)",
+        "Moderate (0.30–0.50)",
+        "Elevated (0.50–{:.2f})".format(tier_upper),
+        "Critical (≥{:.2f})".format(tier_upper),
+    ]
+    for tier_name in tier_order:
+        sub = df[df["tier"] == tier_name]
+        if len(sub) == 0:
+            continue
+        n_orders = len(sub)
+        n_pos = int(sub["y_true"].sum())
+        actual_rate = round(float(sub["y_true"].mean()), 4)
+        total_loss_in_tier = float(sub.loc[sub["y_true"] == 1, "potential_loss"].sum())
+        summary_rows.append({
+            "tier": tier_name,
+            "n_orders": n_orders,
+            "n_positives": n_pos,
+            "actual_positive_rate": actual_rate,
+            "total_potential_loss_BRL": round(total_loss_in_tier, 2),
+            "pct_of_all_orders": round(n_orders / len(y_true) * 100, 1),
+        })
+    return pd.DataFrame(summary_rows)
+
+
+def make_decile_lift_figure(decile_df: pd.DataFrame, out_dir: Path) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    ax1.bar(decile_df["decile"], decile_df["lift"], color="#3b82f6", alpha=0.75)
+    ax1.axhline(1.0, color="gray", linestyle="--", label="Baseline lift = 1.0")
+    ax1.set_xlabel("Decile (1 = highest risk)")
+    ax1.set_ylabel("Lift over base rate")
+    ax1.set_title("Lift by Decile (held-out test set)")
+    ax1.set_xticks(decile_df["decile"])
+    ax1.legend()
+    ax1.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(out_dir / "lift_by_decile.png", dpi=140)
+    plt.close()
+
+
+def make_tier_distribution_figure(tier_df: pd.DataFrame, out_dir: Path) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    colors = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444"][:len(tier_df)]
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    bars = ax1.bar(tier_df["tier"], tier_df["n_orders"], color=colors, alpha=0.8)
+    ax1.set_ylabel("Number of orders")
+    ax1.set_title("Test-set orders by policy tier")
+
+    ax2 = ax1.twinx()
+    ax2.plot(
+        tier_df["tier"],
+        tier_df["actual_positive_rate"],
+        color="#b91c1c",
+        marker="o",
+        linewidth=2,
+        label="Actual positive rate",
+    )
+    ax2.set_ylabel("Actual positive rate")
+    ax2.legend(loc="upper left")
+
+    plt.xticks(rotation=15, ha="right")
+    plt.tight_layout()
+    plt.savefig(out_dir / "tier_distribution.png", dpi=140)
+    plt.close()
+

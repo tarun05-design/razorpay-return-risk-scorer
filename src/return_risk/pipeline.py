@@ -98,3 +98,35 @@ def time_based_split(df: pd.DataFrame, test_frac: float = 0.2):
     train = df.iloc[:cut].copy()
     test = df.iloc[cut:].copy()
     return train, test, cutoff_date
+
+
+def time_based_train_val_test_split(
+    df: pd.DataFrame,
+    val_frac_of_train: float = 0.2,
+    test_frac: float = 0.2,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
+    """
+    Chronological 3-way split:
+      1. Train period: first (1 - test_frac) of orders
+         - Train slice: first (1 - val_frac_of_train) of train period
+         - Validation slice: tail (val_frac_of_train) of train period (used for threshold selection)
+      2. Test set: final test_frac of orders (completely held-out evaluation)
+    """
+    n = len(df)
+    test_cut = int(n * (1 - test_frac))
+    train_period = df.iloc[:test_cut].copy()
+    test_df = df.iloc[test_cut:].copy()
+
+    val_cut = int(len(train_period) * (1 - val_frac_of_train))
+    train_df = train_period.iloc[:val_cut].copy()
+    val_df = train_period.iloc[val_cut:].copy()
+
+    cutoffs = {
+        "train_end": str(train_df.iloc[-1]["order_purchase_timestamp"]),
+        "val_start": str(val_df.iloc[0]["order_purchase_timestamp"]),
+        "val_end": str(val_df.iloc[-1]["order_purchase_timestamp"]),
+        "test_start": str(test_df.iloc[0]["order_purchase_timestamp"]),
+        "test_end": str(test_df.iloc[-1]["order_purchase_timestamp"]),
+    }
+    return train_df, val_df, test_df, cutoffs
+

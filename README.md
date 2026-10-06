@@ -1,179 +1,256 @@
 # Return-Risk Scorer & Magic Checkout Policy Engine
 
 [![Track 02: AI Risk Manager](https://img.shields.io/badge/Razorpay%20AI%20Buildathon-Track%2002%3A%20AI%20Risk%20Manager-0066FF?style=flat-square)](https://razorpay.com/buildathon/)
-[![Live Checkout Demo](https://img.shields.io/badge/Live%20Checkout-Demo-00C7B7?style=flat-square&logo=vercel)](https://razorpay-return-risk-scorer.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Checkout-00C7B7?style=flat-square&logo=vercel)](https://razorpay-return-risk-scorer.vercel.app/)
 [![Defense Only](https://img.shields.io/badge/Architecture-Defense%20Only-10b981?style=flat-square)]()
 [![Inference Latency](https://img.shields.io/badge/Latency-%3C%201ms%20(Sub--ms)-38bdf8?style=flat-square)]()
-[![Proxy Validation](https://img.shields.io/badge/NLP%20Audit-57%C3%97%20Enrichment-f59e0b?style=flat-square)]()
-[![Tests](https://img.shields.io/badge/Tests-14%20Passing-success?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/Tests-19%20Passing-success?style=flat-square)]()
 
-**Track 02 — AI Risk Manager** · Razorpay AI Buildathon  
-*Stop the merchant losing money to fraud, returns and chargebacks.*
+**Track 02 — AI Risk Manager** · Razorpay AI Buildathon Submission  
+*An independent open-source prototype inspired by Razorpay Magic Checkout risk architectures.*
 
-🚀 **Live Checkout Demo**: **[https://razorpay-return-risk-scorer.vercel.app/](https://razorpay-return-risk-scorer.vercel.app/)**
-
-A production-oriented verifier that scores an e-commerce order's probability of turning into a return/refund/cancellation-style loss, at order time with a measured precision/recall on a held-out test set, an honest false-positive cost sensitivity model, and an automated **Razorpay Magic Checkout** policy action engine.
-
-![architecture](architecture.png)
+🚀 **Interactive Live Demo**: [https://razorpay-return-risk-scorer.vercel.app/](https://razorpay-return-risk-scorer.vercel.app/)  
+📊 **Merchant Risk Console**: [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
 
 ---
 
-## ⚡ Quickstart: Launch Interactive Demo
+## ⚠️ Data and Limitations
 
-> 🌐 **Instant Live Demo:** Try the deployed Magic Checkout interface immediately in your browser:  
-> **👉 [https://razorpay-return-risk-scorer.vercel.app/](https://razorpay-return-risk-scorer.vercel.app/)**
+> **Training Data (Brazil vs. India Context)**: This model is trained on the [Brazilian Olist e-commerce dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) (88,554 labeled orders, 2016–2018) because **no public Indian COD/RTO order-level dataset exists**. All model training, feature distributions, and monetary evaluations are strictly computed in **R$ (Brazilian Real)**, the native currency of the dataset. The customer-facing checkout demo localizes unit economics and user experience to Indian e-commerce (UPI, COD, OTP verification) for illustrative Track 02 presentation only. In enterprise deployment, the pipeline accepts domestic merchant order telemetry and COD return history directly.
+>
+> **Proxy Label Construction**: Olist contains no explicit "RTO/return" boolean column. Return risk is proxied from order cancellations + extreme negative review scores ($\le 2$ stars) containing return/refund language (empirically validated by **56.96× NLP keyword enrichment** over positive reviews). Neutral reviews (score = 3) and unreviewed delivered orders are dropped rather than forced into an artificial binary label.
+>
+> **Softened Industry Claims**: References to Razorpay Magic Checkout illustrate how real-time risk intelligence can integrate into checkout funnels. RTO reduction figures reported by industry platforms vary significantly by merchant vertical, catalog tier, and operational policy.
+>
+> **Leak-Free Threshold Tuning**: Tier cutoffs and the cost-optimal decision threshold (0.647) were strictly selected on a **validation slice (the chronological tail of the training period)** without test leakage, and reported on the held-out test set.
 
-To run the full stack locally (including API and merchant dashboard):
+---
+
+### One-Command Reproduction
 
 ```bash
-# 1. Clone repository
+git clone https://github.com/tarun05-design/razorpay-return-risk-scorer.git && cd razorpay-return-risk-scorer && pip install -r requirements.txt && uvicorn return_risk.api:app --app-dir src --port 8000
+```
+
+Then open [http://localhost:8000](http://localhost:8000) for the live risk-adaptive checkout, or [http://localhost:8000/dashboard](http://localhost:8000/dashboard) for the merchant console.
+
+---
+
+## ⚡ Quickstart
+
+```bash
+# 1. Clone & install
 git clone https://github.com/tarun05-design/razorpay-return-risk-scorer.git
 cd razorpay-return-risk-scorer
-
-# 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Run unit test suite (14 passing tests)
+# 2. Run all unit & integration tests (19 passing)
 python -m pytest tests/ -v
 
-# 4. Launch the application
+# 3. Retrain model and regenerate metrics from scratch (fixed seed=42)
+python scripts/run_pipeline.py
+
+# 4. Launch API service
 uvicorn return_risk.api:app --app-dir src --port 8000
+
+# 5. Score an order from command line
+curl -X POST localhost:8000/score -H "Content-Type: application/json" -d @sample_order.json
 ```
 
-### 🎯 Two Live Interactive Views:
-1. **Consumer Checkout Experience**:
-   - 🌐 **Live Web App**: **[`https://razorpay-return-risk-scorer.vercel.app/`](https://razorpay-return-risk-scorer.vercel.app/)**
-   - 💻 **Local Server**: **[`http://localhost:8000/checkout`](http://localhost:8000/checkout)**  
-   *Experience the checkout directly from the end-customer's viewpoint. Watch payment methods, UPI incentives, OTP verification, and COD availability dynamically adapt in real-time based on buyer return risk.*
-2. **Merchant Risk & Analytics Console**: **[`http://localhost:8000/dashboard`](http://localhost:8000/dashboard)**  
-   *Interactive merchant simulator with dynamic threshold sliders, live sub-millisecond latency monitor, cost sensitivity curves, and plain-language reason codes.*
-
 ---
 
-## 🛒 Dynamic Risk Policies in Action (Checkout UI)
+## 🎯 Architecture: Real-Time Scoring & Checkout Policy Engine
 
-In Indian e-commerce, **Return-to-Origin (RTO)** and doorstep delivery rejections eat **25–40% of merchant operating margins**. Razorpay's flagship D2C product, **Magic Checkout**, tackles this by reducing RTO by up to 50% through AI risk scoring.
+The system couples a sub-millisecond, deterministic gradient-boosted classifier with a dynamic action policy engine:
 
-The checkout page demonstrates how our AI engine acts behind the scenes across 4 distinct customer risk profiles:
-
-| Risk Tier | Risk Score | Dynamic Checkout Policy | Customer Experience |
-|---|---|---|---|
-| **Low Risk** | `< 0.30` | `APPROVE_COD` | **Zero Friction**: Standard 1-click checkout. Pay on Delivery and all online options are open. |
-| **Moderate** | `0.30 – <0.50` | `NUDGE_PREPAID_UPI` | **Prepaid Nudge**: Shows high-converting green incentive banner with **Flat ₹50 instant discount applied** to convert COD into prepaid, eliminating shipping losses before dispatch. |
-| **Elevated** | `0.50 – <0.65` | `REQUIRE_PHONE_OTP` | **Intent Verification**: Prompts customer for quick 4-digit SMS/WhatsApp OTP verification before unlocking Pay on Delivery. |
-| **Critical** | `>= 0.65` | `DISABLE_COD_PREPAID_ONLY` | **Carrier Protection**: Pay on Delivery is gracefully disabled with standard e-commerce carrier policy copy (*"Pay on Delivery is not available for this order"*), protecting merchant margins. |
-
----
-
-## 🔍 The Core Problem This Project Actually Solves
-
-Olist's public dataset (100K real Brazilian e-commerce orders, 2016–2018) has **no "returned" flag**. Most public projects using this dataset predict customer churn or LTV, not returns — because *the label doesn't exist*. Building a return-risk scorer here requires being explicit about a proxy definition of return-risk and proving it's not noise. This repo constructs and validates that proxy label.
-
-### Proxy Label Definition (The Design Decision That Matters Most)
-
-| Class | Rule |
-|---|---|
-| **Positive (proxy return-risk)** | `order_status == 'canceled'`, OR a delivered order with `review_score ∈ {1, 2}` |
-| **Negative (proxy low-risk)** | delivered order with `review_score ∈ {4, 5}` |
-| **Dropped** | `review_score == 3` (neutral — forcing it into a class would poison the label), delivered orders with no review, non-terminal statuses (shipped/processing/etc. — outcome not yet known) |
-
-### 57× NLP Validation (Evidence, Not Assertion)
-Review text is never used as a *feature* (it's written after delivery — that would leak), but it's used once to check whether the *label* means what we claim. Searching review comments for Portuguese return/refund/cancellation language (`devolv-`, `troca`, `reembols-`, `estorn-`, `cancel-`, …):
-
-- Low-score (1–2) reviews mention returns/refunds/cancellations **20.8%** of the time
-- High-score (4–5) reviews mention them **0.36%** of the time
-- **57× enrichment** — the proxy tracks real return-adjacent language, not noise
-
-Full breakdown: `reports/metrics.json → data_audit.proxy_label_validation`.
-
----
-
-## 🛡️ Leakage-Safe Engineering by Construction
-
-1. **Features Knowable Pre-Order Only**: Item count, price, freight, weight, payment installments, category, promised delivery window (estimated − purchase date, not actual delivery), and interstate shipping flag.
-2. **Expanding Seller Prior**: Naively averaging a seller's outcomes over all orders leaks the future. Instead, we use an **expanding window ordered by purchase timestamp** with empirical Bayes shrinkage toward the global base rate for thin-history sellers. Unit-tested in `tests/test_pipeline.py`.
-3. **Time-Based Split (Held-Out Test Set)**: The evaluation strictly holds out the **last 20% of orders by purchase date** (cutoff: 2018-05-29), testing the model as it would operate in real-world deployment.
-
----
-
-## 🚀 Model Architecture & Latency Benchmark
-
-We use `sklearn.HistGradientBoostingClassifier` to score 30 pre-order tabular features (26 numeric + 4 categorical).
-
-### Why Trees Over LLMs for Real-Time Checkout?
-For real-time payments, the industry standard latency target is <10ms. Our measured scorer latency is substantially below that target. Tabular gradient-boosted trees provide calibrated probabilities with sub-millisecond execution, while an LLM would introduce 800ms+ network latency and non-deterministic hallucination risk.
-
-Run the latency benchmark tool:
-```bash
-python scripts/benchmark.py --n-runs 3000
+```
+[ Merchant Checkout / App ]
+            │
+            ▼  POST /score (Order JSON: items, freight, sellers, customer state)
+┌────────────────────────────────────────────────────────┐
+│ FastAPI Inference Service                              │
+│                                                        │
+│  1. Feature Expansion (promised delivery, split-ship)  │
+│  2. O(1) Seller Prior Lookup (historical bad rate)     │
+│  3. HistGradientBoosting predict_proba (calibrated)    │
+│  4. Rule-based Reason Code Generator                   │
+│  5. Action Policy Evaluator (Tier & Intervention)      │
+└────────────────────────────────────────────────────────┘
+            │
+            ▼  JSON Response: { risk_score, flagged, reason_codes, action }
+[ Risk-Adaptive Checkout UX ]
+  ├── Low Risk (<0.30): Frictionless 1-Click COD
+  ├── Moderate Risk (0.30–0.50): Instant ₹50 UPI Discount Nudge
+  ├── Elevated Risk (0.50–0.65): Automated 2-Way OTP/WhatsApp Verification
+  └── Critical Risk (≥0.65): COD Gated (Prepaid Only to protect reverse freight)
 ```
 
-**Benchmark Results:**
-- **Mean Latency**: `0.85 ms` (Single Core)
-- **p95 Latency**: `1.20 ms`
-- **Throughput**: `1,170+ orders/sec`
-- **Result**: **10× headroom** under the <10ms target.
+### API Hosting & Cold-Start Handling
+- **FastAPI Backend**: Fully production-ready with `render.yaml` for Render, `Procfile` for Railway/Heroku, and `api/index.py` with `vercel.json` for serverless environments.
+- **Cold-Start Resilience**: The frontend incorporates an asynchronous loading state with a 15-second timeout window to accommodate container wake-ups.
+- **Anti-Faking Safety Banner**: The frontend connects live to `POST /score`. If the API is unreachable, it displays a prominent **"OFFLINE MODE"** warning banner rather than silently faking scores.
 
 ---
 
-## 📊 Results (Held-Out Test Set, 17,711 Orders)
+## 🧪 Real Held-Out Test Orders in Demo
 
-| Metric | Value | Context |
+Rather than simulated profiles, the interactive demo showcases **four actual held-out orders from the test set**:
+
+| Tier | Test Order ID | Real Model Score | Ground Truth Test Outcome | Checkout Intervention |
+|---|---|---|---|---|
+| **Low** | `#0046176ff0` | **0.0608** (6.1%) | Delivered cleanly · 0% loss · 5-star review | Approve COD / Zero friction |
+| **Moderate** | `#99daacedd8` | **0.4569** (45.7%) | Split-shipment dispute! Missing second parcel | Instant ₹50 UPI prepaid discount |
+| **Elevated** | `#64ccc97757` | **0.5353** (53.5%) | 45-day transit to Bahia across 2 sellers · Return requested | Automated WhatsApp/OTP confirmation |
+| **Critical** | `#24914fccbc` | **0.7192** (71.9%) | High-risk seller (31.9% bad rate) · Returned refilled cartridges | Gate COD (Prepaid only) |
+
+---
+
+## 📊 Rigorous 3-Way Leak-Free Evaluation
+
+### Chronological Train / Validation / Test Split
+To avoid temporal data leakage (where models artificially learn from future orders), the dataset is split chronologically:
+- **Train period**: 70,843 orders (first 80% chronologically)
+  - **Train slice**: 56,674 orders (first 80% of train period; 2016-09-04 to 2018-03-21)
+  - **Validation slice**: 14,169 orders (chronological tail of train period; 2018-03-21 to 2018-05-29)
+- **Held-out Test set**: 17,711 orders (completely unseen forward orders; 2018-05-29 to 2018-10-17)
+
+### Grounding Policy Tiers on Validation
+1. **0.30 Threshold**: Corresponds to the **90th percentile of predicted risk on validation** (flags top ~5% of orders for a gentle prepaid discount nudge with zero customer drop-off).
+2. **0.50 Threshold**: Corresponds to the **98th percentile of predicted risk on validation** (flags top ~1.3% of orders for automated WhatsApp verification).
+3. **0.647 Threshold**: The **cost-optimal threshold** derived from financial cost sweep on validation (flags ~0.56% of orders to gate COD completely).
+
+---
+
+## 📈 Final Model Metrics (Seed = 42, Held-Out Test Set)
+
+All metrics below are generated directly by `scripts/run_pipeline.py` and saved to `reports/metrics.json`:
+
+### Overall Ranking Performance
+- **Held-Out Test Set Size**: 17,711 orders
+- **Test Base Rate**: **11.23%** (1,989 positive return-risk orders)
+- **ROC-AUC**: **0.6482**
+- **PR-AUC**: **0.2657** (2.37× over baseline)
+
+### Precision & Recall at Top-k Percentiles
+
+| Percentile Flagged | Order Count ($k$) | True Positives | Precision | Recall |
+|---|---|---|---|---|
+| **Top 1.0%** | 177 | 127 | **71.75%** | 6.39% |
+| **Top 5.0%** | 885 | 336 | **37.97%** | 16.89% |
+| **Top 10.0%** | 1,771 | 495 | **27.95%** | 24.89% |
+
+### Lift by Decile (Held-Out Test Set)
+
+| Decile | Orders | Positives | Positive Rate | Lift over Base Rate |
+|---|---|---|---|---|
+| **1 (Highest Risk)** | 1,771 | 495 | **27.95%** | **2.49×** |
+| **2** | 1,771 | 267 | 15.08% | 1.34× |
+| **3** | 1,771 | 208 | 11.74% | 1.05× |
+| **4** | 1,771 | 180 | 10.16% | 0.91× |
+| **5** | 1,771 | 192 | 10.84% | 0.97× |
+| **6** | 1,771 | 156 | 8.81% | 0.78× |
+| **7** | 1,771 | 151 | 8.53% | 0.76× |
+| **8** | 1,771 | 112 | 6.32% | 0.56× |
+| **9** | 1,771 | 111 | 6.27% | 0.56× |
+| **10 (Lowest Risk)** | 1,772 | 117 | 6.60% | 0.59× |
+
+### Policy Tier Distribution (100% of Test Set Accounted For)
+
+| Policy Tier | Risk Range | Test Orders ($N$) | Share (%) | Positives | Actual Positive Rate | Total Potential Loss (R$) |
+|---|---|---|---|---|---|---|
+| **Low** | `< 0.30` | 16,782 | 94.8% | 1,645 | **9.80%** | R$ 120,533.94 |
+| **Moderate** | `0.30 – 0.50` | 694 | 3.9% | 198 | **28.53%** (2.5×) | R$ 28,454.20 |
+| **Elevated** | `0.50 – 0.65` | 135 | 0.8% | 57 | **42.22%** (3.8×) | R$ 10,482.37 |
+| **Critical** | `≥ 0.65` | 100 | 0.6% | 89 | **89.00%** (7.9×) | R$ 6,055.31 |
+| **Total** | — | **17,711** | **100.0%** | **1,989** | **11.23%** | **R$ 165,525.82** |
+
+> Note: Actual positive rate climbs monotonically from **9.80%** in Tier 1 to **89.00%** in Tier 4.
+
+### Classification Threshold Performance
+
+| Metric | Default Threshold (0.500) | Validation-Optimal (0.647) |
 |---|---|---|
-| **ROC-AUC** | **0.647** | Rank-ordering signal on pre-outcome signals |
-| **PR-AUC** | **0.270** | **~2.4× lift** over 11.2% base rate |
-| **Calibration** | **0.131 vs. 0.112** | Mean predicted vs. true rate (well-calibrated probabilities) |
+| **Threshold** | 0.500 | **0.647** |
+| **Precision** | 62.13% | **89.11%** |
+| **Recall** | 7.34% | **4.52%** |
+| **F1 Score** | 0.1313 | **0.0861** |
+| **Orders Flagged** | 235 / 17,711 (1.3%) | **101 / 17,711 (0.6%)** |
+| **True Positives** | 146 | **90** |
+| **False Positives** | 89 | **11** |
 
-At the **Cost-Optimal Threshold (0.598)**:
-- **Precision**: `78.6%` (114 True Positives vs. 31 False Positives)
-- **Recall**: `5.7%` (Orders flagged: 145 / 17,711 = 0.8%)
+---
 
-### Honest Cost Accounting (The Explicit Track Bar)
+## 🔍 Top Feature Importances (Permutation on Test Set)
 
-Per-order potential loss: `2 × total_freight` (reverse logistics) + `15% × total_price` (restock/margin loss). Intervention cost: ₹25 / flag.
+1. `n_items` (0.0447): Unusually large basket sizes are strong correlates of transit and delivery friction.
+2. `seller_prior_bad_rate` (0.0254): Historical seller dispute and bad-delivery rate.
+3. `n_distinct_sellers` (0.0199): Split-shipment orders multiply logistics failure modes.
+4. `total_freight` (0.0175): High freight relative to item price.
+5. `price_per_item` (0.0160): Extremely cheap or high-margin unit costs.
 
-- At a conservative **30% intervention success rate**, the cost-optimal threshold nets **−₹89.55** vs. flagging nothing on the test set (breakeven).
-- Our sensitivity sweep (`reports/success_rate_sensitivity.csv`) shows the model becomes **net-positive once intervention effectiveness passes ~35%** (e.g. saving ₹4,800+ on test batch with WhatsApp verification or UPI discounts).
+---
 
-All figures: `reports/figures/` (PR curve, ROC curve, calibration curve, cost sweep, sensitivity curve).
+## 🛡️ Test Suite Summary (19 Tests Passing)
+
+The test suite enforces mathematical invariants, leakage prevention, and API contracts:
+
+- `tests/test_evaluate.py`:
+  - `test_tier_counts_sum_to_test_set_size`: Proves policy tier counts sum exactly to 100% of the dataset size.
+  - `test_precision_recall_at_top_k_hand_computed`: Verifies top-$k$ precision and recall against hand-computed ground truth.
+  - `test_lift_by_decile_preserves_total_orders`: Proves decile bins account for all test rows.
+- `tests/test_api.py`:
+  - `test_score_response_schema_matches_frontend`: Asserts that `/score` returns every field and data type expected by the frontend.
+  - `test_health_endpoint`, `test_checkout_endpoint`, `test_dashboard_endpoint`.
+- `tests/test_action_policy.py`:
+  - Unit tests for loss calculation and all four policy tiers.
+- `tests/test_pipeline.py`:
+  - Leakage checks: expanding seller prior strictly uses past orders; no test orders precede train cutoff.
+
+Run the suite:
+```bash
+python -m pytest tests/ -v
+```
 
 ---
 
 ## 📁 Repository Structure
 
 ```
-├── src/return_risk/
-│   ├── action_policy.py      # Razorpay Magic Checkout policy rules & financial ROI
-│   ├── api.py                # FastAPI endpoints (/score, /health, /dashboard, /checkout)
-│   ├── evaluate.py           # Metrics, cost sweep, sensitivity curves, plots
-│   ├── features.py           # Leakage-safe feature engineering & expanding seller prior
-│   ├── labeling.py           # Proxy label construction & 57x NLP validation
-│   ├── pipeline.py           # Dataset assembly & time-based split
-│   ├── score.py              # Single-order verifier & plain-language reason codes
-│   ├── seller_store.py       # Persisted seller-prior lookup
-│   ├── templates/
-│   │   ├── checkout.html     # Real-world dynamic risk-adaptive checkout experience
-│   │   └── dashboard.html    # Interactive merchant risk intelligence console
-│   ├── static/images/        # High-res e-commerce product imagery
-│   └── train.py              # HistGradientBoostingClassifier training & export
+├── api/
+│   └── index.py                      # Vercel serverless function entrypoint
+├── data/
+│   ├── raw/                          # Olist Brazilian E-Commerce dataset
+│   └── processed/
+│       ├── model.joblib              # Persisted HistGradientBoostingClassifier
+│       ├── reference_stats.json      # Validation statistics & thresholds
+│       └── seller_prior_snapshot.csv # Seller priors snapshot for O(1) inference
+├── reports/
+│   ├── figures/                      # ROC, PR, calibration, decile lift, and tier plots
+│   ├── metrics.json                  # Complete audit report and evaluated metrics
+│   ├── lift_by_decile.csv            # Decile lift table
+│   └── policy_tier_distribution.csv  # Test orders across policy tiers
 ├── scripts/
-│   ├── benchmark.py          # Latency & throughput benchmarking suite
-│   ├── download_data.py      # Automated dataset downloader
-│   ├── run_pipeline.py       # Full training, evaluation & artifact generation
-├── tests/
-│   ├── test_action_policy.py # Policy engine & ROI unit tests
-│   ├── test_api.py           # FastAPI routes & integration tests
-│   └── test_pipeline.py      # Label logic, proxy validation & leakage guards
-├── data/processed/           # Pre-trained model.joblib, reference_stats, seller snapshot
-├── reports/                  # metrics.json, threshold_sweep.csv, figures/
-├── render.yaml               # Render 1-click cloud deployment config
-├── Procfile                  # Cloud process file for Railway / Heroku
-├── requirements.txt          # Python production dependencies
-└── architecture.png          # System architecture diagram
+│   └── run_pipeline.py               # End-to-end 3-way time-split pipeline runner
+├── src/return_risk/
+│   ├── action_policy.py              # Magic Checkout tier decision logic
+│   ├── api.py                        # FastAPI /score, /health, /dashboard endpoints
+│   ├── evaluate.py                   # Metrics, cost sweeps, decile lift & top-k
+│   ├── features.py                   # Leakage-safe expanding seller prior & features
+│   ├── labeling.py                   # Proxy label derivation & NLP validation
+│   ├── pipeline.py                   # Dataset builders & 3-way temporal splits
+│   ├── score.py                      # Inference wrapper & transparent reason codes
+│   ├── train.py                      # Gradient-boosted model training
+│   └── templates/                    # Checkout & dashboard HTML templates
+├── tests/                            # 19 comprehensive unit & integration tests
+├── index.html                        # Standalone interactive checkout demo
+├── vercel.json                       # Vercel deployment routing
+├── render.yaml                       # Render web service configuration
+└── Procfile                          # Process file for cloud container deployment
 ```
 
 ---
 
-## 🔒 Scope Discipline & Defense-Only Guarantee
+## 📜 License & Acknowledgments
 
-**Strictly defense-only**, per the Razorpay Track 02 bar. This system scores and flags risk for merchant loss prevention and checkout safety — nothing here identifies, targets, or acts against individual customers, and there is no component that could be repurposed to manipulate payment outcomes.
+Distributed under the MIT License. Built for the **Razorpay AI Buildathon — Track 02 (AI Risk Manager)**.
+Dataset courtesy of [Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).

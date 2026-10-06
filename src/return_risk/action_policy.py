@@ -113,7 +113,7 @@ def evaluate_action_policy(
             ],
         )
 
-    elif risk_score < max(0.65, cost_optimal_threshold):
+    elif risk_score < cost_optimal_threshold:
         # Automated WhatsApp confirmation costs ~₹1-2, saves ~30% of cancellations
         expected_savings = (potential_loss * intervention_success_rate) - intervention_cost
         return PolicyAction(

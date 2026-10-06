@@ -111,8 +111,12 @@ class ReturnRiskScorer:
     def __init__(self, model_path: Path, seller_store_path: Path, reference_stats_path: Path):
         import sys
         try:
+            import sklearn._loss._loss as _cy_loss
+            sys.modules["_loss"] = _cy_loss
+        except Exception:
+            pass
+        try:
             import sklearn._loss.loss as _loss_loss
-            sys.modules["_loss"] = _loss_loss
             sys.modules["_loss.loss"] = _loss_loss
         except Exception:
             pass

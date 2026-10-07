@@ -87,6 +87,26 @@
       background: #fecaca; padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
     }
 
+    /* ===== TRANSPARENCY DEMO BANNER ===== */
+    .demo-truth-banner {
+      background: #f1f5f9; border-bottom: 1px solid #cbd5e1;
+      padding: 7px 20px; font-size: 12px; color: #334155;
+      display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+    }
+    .truth-badge {
+      background: #0f172a; color: #fff; font-size: 10px; font-weight: 800;
+      padding: 2px 7px; border-radius: 4px; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .truth-text code {
+      background: #e2e8f0; padding: 1px 5px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    }
+
+    .summary-savings-box {
+      margin-bottom: 14px; background: var(--green-light); border: 1px solid var(--green-border);
+      border-radius: 6px; padding: 7px 10px; font-size: 12px; font-weight: 700; color: #065f46;
+      text-align: center;
+    }
+
     /* ===== LAYOUT ===== */
     .checkout-container {
       max-width: 1200px; margin: 24px auto 100px; padding: 0 20px;
@@ -340,6 +360,12 @@
     </div>
   </header>
 
+  <!-- ===== TRANSPARENCY DEMO BANNER ===== -->
+  <div class="demo-truth-banner">
+    <span class="truth-badge">PRESET SCENARIOS</span>
+    <span class="truth-text">Simulated checkout storefront · Preset scenarios drawn from held-out test orders · Scores & policy actions from live ML model (<code id="liveEndpointLabel">POST /score</code>)</span>
+  </div>
+
   <!-- ===== OFFLINE / FALLBACK BANNER ===== -->
   <div class="offline-banner" id="offlineBanner">
     ⚠️ <strong>OFFLINE MODE:</strong> Live scoring API unreachable. Falling back to cached results for held-out test orders.
@@ -459,7 +485,7 @@
       <div class="order-summary-card">
         <div class="summary-title">Order Summary</div>
         <div class="summary-line">
-          <span>Items Total:</span>
+          <span>Items Total (<span id="sumItemCount">1</span> items):</span>
           <span id="sumItems">₹0.00</span>
         </div>
         <div class="summary-line">
@@ -467,7 +493,7 @@
           <span style="color:var(--green); font-weight:700;">FREE</span>
         </div>
         <div class="summary-line discount" id="sumDiscountRow" style="display:none;">
-          <span>UPI Instant Discount:</span>
+          <span>Promotion (Prepaid UPI Discount):</span>
           <span id="sumDiscount">−₹50.00</span>
         </div>
         <div class="summary-divider"></div>
@@ -475,9 +501,12 @@
           <span>Order Total:</span>
           <span id="sumTotal">₹0.00</span>
         </div>
+        <div class="summary-savings-box" id="sumSavingsBox" style="display:none;">
+          🎉 Total Savings: <strong id="sumSavings">₹50.00</strong>
+        </div>
         <button class="place-order-btn" onclick="placeOrder()">Place Your Order</button>
         <div style="font-size:11px; color:var(--text-subtle); text-align:center; margin-top:12px;">
-          Protected by Razorpay Magic Checkout Policy Engine
+          Protected by Razorpay Return Risk Policy Engine
         </div>
       </div>
     </aside>
@@ -718,7 +747,7 @@
         title: '3x HP Print Cartridges (High-Risk Seller & Split Sellers)',
         items: [
           { name: 'HP Original High-Yield Black Print Cartridge', seller: 'Sold by: OfficeTech Direct (31.9% bad rate)', price: 78.90, qty: 1, icon: '🖨️' },
-          { name: 'HP Tri-Color Original Cartridge (Pack of 2)', seller: 'Sold by: InkSupply Pro', price: 179.80, qty: 1, icon: '🖨️' }
+          { name: 'HP Tri-Color Original Cartridge', seller: 'Sold by: InkSupply Pro', price: 89.90, qty: 2, icon: '🖨️' }
         ],
         groundTruth: {
           label: 1,
@@ -828,8 +857,10 @@
       const itemsContainer = document.getElementById('orderItemsContainer');
       itemsContainer.innerHTML = '';
       let subtotal = 0;
+      let totalQty = 0;
       sc.items.forEach(it => {
         subtotal += it.price * it.qty;
+        totalQty += it.qty;
         const row = document.createElement('div');
         row.className = 'order-item-row';
         row.innerHTML = `
@@ -843,6 +874,8 @@
         itemsContainer.appendChild(row);
       });
       currentSubtotal = subtotal;
+      const countEl = document.getElementById('sumItemCount');
+      if (countEl) countEl.textContent = totalQty;
 
       // Update Ground Truth Card
       document.getElementById('gtTitle').textContent = `Held-Out Test Order #${sc.orderId.slice(0, 8)}:`;
@@ -987,16 +1020,23 @@
       // Rule: Apply ₹50 discount ONLY when UPI is selected in Moderate Nudge tier
       const isUpiSelected = currentSelectedPayment === 'upi';
       const isNudgeEligible = currentTier === 'moderate';
-      const discount = (isUpiSelected && isNudgeEligible) ? 50 : 0;
+      const promotion = (isUpiSelected && isNudgeEligible) ? 50 : 0;
 
       const discountRow = document.getElementById('sumDiscountRow');
-      if (discount > 0) {
+      const savingsBox = document.getElementById('sumSavingsBox');
+      if (promotion > 0) {
         discountRow.style.display = 'flex';
+        document.getElementById('sumDiscount').textContent = `−₹${promotion.toFixed(2)}`;
+        if (savingsBox) {
+          savingsBox.style.display = 'block';
+          document.getElementById('sumSavings').textContent = `₹${promotion.toFixed(2)}`;
+        }
       } else {
         discountRow.style.display = 'none';
+        if (savingsBox) savingsBox.style.display = 'none';
       }
 
-      const total = Math.max(0, currentSubtotal - discount);
+      const total = Math.max(0, currentSubtotal - promotion);
       document.getElementById('sumItems').textContent = `₹${currentSubtotal.toFixed(2)}`;
       document.getElementById('sumTotal').textContent = `₹${total.toFixed(2)}`;
     }

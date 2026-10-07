@@ -14,9 +14,12 @@ Then:
 from __future__ import annotations
 
 import json
+import logging
+import time
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
@@ -24,6 +27,16 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .score import ReturnRiskScorer
+
+logger = logging.getLogger("return_risk.audit")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+_audit_log_buffer: list[dict[str, Any]] = []
+MAX_AUDIT_LOG_ENTRIES = 200
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PROCESSED_DIR = ROOT / "data" / "processed"
@@ -171,9 +184,54 @@ def score_order(order: OrderRequest):
     threshold = order.threshold if order.threshold is not None else scorer.reference_stats.get(
         "cost_optimal_threshold", 0.65
     )
+
+    t0 = time.perf_counter()
     try:
         result = scorer.score(payload, threshold=threshold)
     except ValueError as e:
         raise HTTPException(422, str(e))
-    return result.as_dict()
+    latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+
+    res_dict = result.as_dict()
+
+    # Immutable Audit Log Trail
+    audit_entry = {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "event": "ORDER_SCORED",
+        "risk_score": res_dict["risk_score"],
+        "flagged": res_dict["flagged"],
+        "risk_tier": res_dict.get("action", {}).get("risk_tier", "unknown"),
+        "action_code": res_dict.get("action", {}).get("action_code", "none"),
+        "reason_codes": res_dict.get("reason_codes", []),
+        "threshold_used": res_dict.get("threshold_used", threshold),
+        "latency_ms": latency_ms,
+        "inputs": {
+            "seller_id": payload.get("seller_id"),
+            "customer_state": payload.get("customer_state"),
+            "seller_state": payload.get("seller_state"),
+            "total_price": payload.get("total_price"),
+            "total_freight": payload.get("total_freight"),
+            "n_items": payload.get("n_items"),
+            "payment_type": payload.get("payment_type"),
+        },
+    }
+
+    logger.info(json.dumps(audit_entry))
+    _audit_log_buffer.append(audit_entry)
+    if len(_audit_log_buffer) > MAX_AUDIT_LOG_ENTRIES:
+        _audit_log_buffer.pop(0)
+
+    return res_dict
+
+
+@app.get("/audit-log")
+def get_audit_log(limit: int = 50):
+    """Returns real-time immutable audit trail of recent scored orders with inputs, decisions, and timestamps."""
+    sliced = _audit_log_buffer[-max(1, min(limit, MAX_AUDIT_LOG_ENTRIES)):]
+    return {
+        "status": "ok",
+        "total_logged": len(_audit_log_buffer),
+        "returned": len(sliced),
+        "audit_trail": list(reversed(sliced)),
+    }
 

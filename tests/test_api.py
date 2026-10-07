@@ -95,3 +95,32 @@ def test_score_response_schema_matches_frontend(client):
     assert isinstance(action.get("expected_savings"), (int, float))
     assert isinstance(action.get("merchant_notes"), list)
 
+
+def test_audit_log_endpoint(client):
+    """Verifies that scored orders are captured in the immutable audit trail with
+    inputs, tiers, actions, reason codes, and timestamps."""
+    with open(ROOT / "sample_order.json") as f:
+        sample_order = json.load(f)
+
+    # Score an order
+    post_resp = client.post("/score", json=sample_order)
+    assert post_resp.status_code == 200
+
+    # Retrieve audit log
+    audit_resp = client.get("/audit-log")
+    assert audit_resp.status_code == 200
+    data = audit_resp.json()
+    assert data["status"] == "ok"
+    assert data["total_logged"] >= 1
+    assert len(data["audit_trail"]) >= 1
+
+    entry = data["audit_trail"][0]
+    assert "timestamp_utc" in entry
+    assert "risk_score" in entry
+    assert "risk_tier" in entry
+    assert "action_code" in entry
+    assert "reason_codes" in entry
+    assert "inputs" in entry
+    assert entry["inputs"]["customer_state"] == sample_order["customer_state"]
+    assert "latency_ms" in entry
+

@@ -61,25 +61,6 @@
       font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
       background: #334155; color: #94a3b8; padding: 2px 7px; border-radius: 4px;
     }
-    .magic-checkout-pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: rgba(12, 131, 255, 0.15); border: 1px solid rgba(12, 131, 255, 0.4);
-      color: #60a5fa; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
-    }
-    .magic-checkout-pill .magic-sub { color: #93c5fd; font-weight: 500; font-size: 10px; margin-left: 1px; }
-    .inspect-btn-header {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: #1e293b; border: 1px solid #3b82f6; color: #93c5fd;
-      padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
-      cursor: pointer; transition: all 0.15s ease;
-    }
-    .inspect-btn-header:hover {
-      background: #2563eb; color: #fff; border-color: #60a5fa; transform: translateY(-1px);
-    }
-    .inspect-pulse {
-      width: 6px; height: 6px; background: #38bdf8; border-radius: 50%;
-      animation: pulseDot 1.5s infinite;
-    }
     .api-status-pill {
       display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600;
       padding: 4px 12px; border-radius: 20px; background: #1e293b; border: 1px solid #334155;
@@ -90,45 +71,6 @@
     }
     .status-dot.offline { background: var(--red); animation: none; }
     .status-dot.loading { background: var(--amber); }
-
-    /* Payment Rail Badges */
-    .payment-rail-badges {
-      display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px;
-    }
-    .rail-badge {
-      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
-      letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 3px;
-    }
-    .rail-badge.gpay { background: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; }
-    .rail-badge.phonepe { background: #f3e8ff; color: #673ab7; border: 1px solid #e9d5ff; }
-    .rail-badge.paytm { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
-    .rail-badge.cred { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-    .rail-badge.bhim { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
-    .rail-badge.card-visa { background: #1a1f71; color: #ffffff; font-weight: 800; font-style: italic; }
-    .rail-badge.card-mc { background: #eb001b; color: #ffffff; font-weight: 800; }
-    .rail-badge.card-rupay { background: #097939; color: #ffffff; font-weight: 800; }
-
-    /* Vector Product Thumbnails */
-    .product-thumb-box {
-      width: 52px; height: 52px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.25);
-    }
-    .thumb-game { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%); color: #a5b4fc; }
-    .thumb-vinyl { background: linear-gradient(135deg, #18181b 0%, #27272a 60%, #52525b 100%); color: #fbbf24; }
-    .thumb-fragrance { background: linear-gradient(135deg, #451a03 0%, #78350f 50%, #b45309 100%); color: #fde68a; }
-    .thumb-watch1 { background: linear-gradient(135deg, #091e3a 0%, #1e3a8a 60%, #3b82f6 100%); color: #bfdbfe; }
-    .thumb-watch2 { background: linear-gradient(135deg, #18181b 0%, #3f3f46 60%, #71717a 100%); color: #f4f4f5; }
-    .thumb-cartridge { background: linear-gradient(135deg, #042f2e 0%, #0f766e 60%, #14b8a6 100%); color: #ccfbf1; }
-
-    /* Security Trust Strip */
-    .security-trust-strip {
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      margin-top: 14px; padding: 9px 12px; background: #f8fafc; border: 1px dashed #cbd5e1;
-      border-radius: 8px; font-size: 11px; color: #475569; flex-wrap: wrap;
-    }
-    .trust-item { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
-    .trust-dot { color: #94a3b8; font-size: 10px; }
 
     @keyframes pulseDot {
       0%, 100% { opacity: 1; transform: scale(1); }
@@ -406,31 +348,14 @@
   <!-- ===== HEADER ===== -->
   <header class="site-header">
     <div class="header-content">
-      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <a href="#" class="store-brand">
-          <div class="store-logo-icon">A</div>
-          <span>Apex Goods</span>
-        </a>
-        <div class="magic-checkout-pill" title="Protected by Razorpay Magic Checkout Policy Engine">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="#0C83FF" style="flex-shrink:0;">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
-          <span>Magic Checkout</span>
-          <span class="magic-sub">by Razorpay</span>
-        </div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <button class="inspect-btn-header" onclick="toggleAdvisor()" title="Open AI Risk Decision Inspector Drawer">
-          <span>🛡️</span>
-          <span>AI Risk Inspector</span>
-          <span class="inspect-pulse"></span>
-        </button>
-
-        <div class="api-status-pill" id="apiStatusPill" title="Live connection to /score FastAPI inference">
-          <div class="status-dot" id="statusDot"></div>
-          <span id="apiStatusText">Connecting to /score…</span>
-        </div>
+      <a href="#" class="store-brand">
+        <div class="store-logo-icon">A</div>
+        <span>Apex Goods</span>
+        <span class="store-tag">Magic Checkout Demo</span>
+      </a>
+      <div class="api-status-pill" id="apiStatusPill">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="apiStatusText">Connecting to /score…</span>
       </div>
     </div>
   </header>
@@ -483,17 +408,10 @@
             <input type="radio" name="paymentMethod" value="upi" class="payment-radio" checked onchange="handlePaymentChange('upi')" />
             <div class="payment-info">
               <div class="payment-name">
-                <span>UPI (Instant 1-Click Pay)</span>
+                <span>UPI (Google Pay, PhonePe, Paytm, CRED)</span>
                 <span style="font-size:10px; font-weight:700; color:var(--green); background:var(--green-light); padding:1px 6px; border-radius:3px;">RECOMMENDED</span>
               </div>
-              <div class="payment-rail-badges">
-                <span class="rail-badge gpay">GPay</span>
-                <span class="rail-badge phonepe">PhonePe</span>
-                <span class="rail-badge paytm">Paytm</span>
-                <span class="rail-badge cred">CRED</span>
-                <span class="rail-badge bhim">BHIM</span>
-              </div>
-              <div class="payment-desc">Instant payment with zero doorstep friction via Razorpay Turbo UPI</div>
+              <div class="payment-desc">Instant 1-click payment with zero doorstep friction</div>
               <div class="upi-nudge-box" id="upiNudgeBox" style="display:none;">
                 <span class="upi-nudge-text">⚡ Special Offer: ₹50 instant discount applied when paying via UPI</span>
                 <span class="upi-nudge-badge">−₹50 APPLIED</span>
@@ -506,13 +424,7 @@
             <input type="radio" name="paymentMethod" value="card" class="payment-radio" onchange="handlePaymentChange('card')" />
             <div class="payment-info">
               <div class="payment-name">Credit or Debit Card</div>
-              <div class="payment-rail-badges">
-                <span class="rail-badge card-visa">VISA</span>
-                <span class="rail-badge card-mc">Mastercard</span>
-                <span class="rail-badge card-rupay">RuPay</span>
-                <span class="rail-badge" style="background:#f1f5f9; color:#475569; font-weight:700;">Amex</span>
-              </div>
-              <div class="payment-desc">All major domestic and international cards secured with 3DS OTP</div>
+              <div class="payment-desc">Visa, MasterCard, RuPay, American Express</div>
             </div>
           </label>
 
@@ -521,7 +433,7 @@
             <input type="radio" name="paymentMethod" value="netbanking" class="payment-radio" onchange="handlePaymentChange('netbanking')" />
             <div class="payment-info">
               <div class="payment-name">Net Banking</div>
-              <div class="payment-desc">50+ Indian banks (HDFC, ICICI, SBI, Axis, Kotak)</div>
+              <div class="payment-desc">All major Indian banks supported</div>
             </div>
           </label>
 
@@ -530,11 +442,10 @@
             <input type="radio" name="paymentMethod" id="codRadio" value="cod" class="payment-radio" onchange="handlePaymentChange('cod')" />
             <div class="payment-info">
               <div class="payment-name">
-                <span>Cash on Delivery (COD)</span>
-                <span class="rail-badge" style="background:#eff6ff; color:#2563eb; font-size:10px;">Doorstep QR / Cash</span>
+                <span>Cash on Delivery (Pay on Delivery)</span>
                 <span id="codStatusTag" style="font-size:10px; font-weight:700; display:none;"></span>
               </div>
-              <div class="payment-desc" id="codSubText">Pay with cash or UPI QR scan upon courier delivery</div>
+              <div class="payment-desc" id="codSubText">Pay with cash or QR at delivery</div>
 
               <!-- OTP Verification Box for Elevated Tier -->
               <div class="otp-gate-box" id="otpGateBox" style="display:none;">
@@ -594,18 +505,7 @@
           🎉 Total Savings: <strong id="sumSavings">₹50.00</strong>
         </div>
         <button class="place-order-btn" onclick="placeOrder()">Place Your Order</button>
-        
-        <div class="security-trust-strip">
-          <div class="trust-item"><span>🔒</span> 256-Bit SSL</div>
-          <div class="trust-dot">•</div>
-          <div class="trust-item"><span>⚡</span> Razorpay Magic</div>
-          <div class="trust-dot">•</div>
-          <div class="trust-item"><span>🛡️</span> RTO Protection</div>
-          <div class="trust-dot">•</div>
-          <div class="trust-item"><span>🏦</span> RBI Authorized</div>
-        </div>
-
-        <div style="font-size:11px; color:var(--text-subtle); text-align:center; margin-top:10px;">
+        <div style="font-size:11px; color:var(--text-subtle); text-align:center; margin-top:12px;">
           Protected by Razorpay Return Risk Policy Engine
         </div>
       </div>
@@ -614,10 +514,10 @@
   </main>
 
   <!-- ===== FLOATING RETURN RISK ADVISOR PILL ===== -->
-  <div class="floating-advisor-pill" onclick="toggleAdvisor()" id="advisorPill">
+  <div class="floating-advisor-pill" onclick="toggleAdvisor()">
     <div class="status-dot" id="advisorDot"></div>
     <span id="advisorPillLabel">Return Risk: Scoring…</span>
-    <span id="advisorPillArrow" style="font-size:11px; opacity:0.85;">▲ Inspect AI</span>
+    <span>▲</span>
   </div>
 
   <!-- ===== ADVISOR DRAWER / POPUP ===== -->
@@ -734,7 +634,7 @@
         orderId: '0046176ff0dbc2a178b7885355dfbb71',
         title: 'Sony DualShock 4 / Gaming Accessory',
         items: [
-          { name: 'Sony PlayStation DualShock 4 Controller / Gaming Accessory', seller: 'Sold by: LevelUp Games (São Paulo)', price: 121.99, qty: 1, thumb: 'game' }
+          { name: 'Sony PlayStation DualShock 4 Controller / Gaming Accessory', seller: 'Sold by: LevelUp Games (São Paulo)', price: 121.99, qty: 1, icon: '🎮' }
         ],
         groundTruth: {
           label: 0,
@@ -768,8 +668,8 @@
         orderId: '99daacedd8423e3b5169338429be0110',
         title: 'Multi-Seller Bundle (Music Vinyl + Perfume)',
         items: [
-          { name: 'Collector Edition Vinyl Record LP', seller: 'Sold by: SoundGroove Records', price: 52.90, qty: 1, thumb: 'vinyl' },
-          { name: 'Luxury Hydration Golden Fragrance (100ml)', seller: 'Sold by: BeautyAura Store', price: 129.50, qty: 1, thumb: 'fragrance' }
+          { name: 'Collector Edition Vinyl Record LP', seller: 'Sold by: SoundGroove Records', price: 52.90, qty: 1, icon: '🎵' },
+          { name: 'Luxury Hydration Golden Fragrance (100ml)', seller: 'Sold by: BeautyAura Store', price: 129.50, qty: 1, icon: '✨' }
         ],
         groundTruth: {
           label: 1,
@@ -806,8 +706,8 @@
         orderId: '64ccc97757023bd10bf48bed7f1e14e3',
         title: 'Two Designer Timepieces across Split Sellers',
         items: [
-          { name: 'Luxury Chronograph Dress Watch with Leather Strap', seller: 'Sold by: ChronoKing Store', price: 245.00, qty: 1, thumb: 'watch_chrono' },
-          { name: 'Minimalist Bauhaus Quartz Watch (Matte Black)', seller: 'Sold by: TimeCraft Direct', price: 223.00, qty: 1, thumb: 'watch_bauhaus' }
+          { name: 'Luxury Chronograph Dress Watch with Leather Strap', seller: 'Sold by: ChronoKing Store', price: 245.00, qty: 1, icon: '⌚' },
+          { name: 'Minimalist Bauhaus Quartz Watch (Matte Black)', seller: 'Sold by: TimeCraft Direct', price: 223.00, qty: 1, icon: '⌚' }
         ],
         groundTruth: {
           label: 1,
@@ -846,8 +746,8 @@
         orderId: '24914fccbca3abf70528903ab2af4bf8',
         title: '3x HP Print Cartridges (High-Risk Seller & Split Sellers)',
         items: [
-          { name: 'HP Original High-Yield Black Print Cartridge', seller: 'Sold by: OfficeTech Direct (31.9% bad rate)', price: 78.90, qty: 1, thumb: 'cartridge' },
-          { name: 'HP Tri-Color Original Cartridge', seller: 'Sold by: InkSupply Pro', price: 89.90, qty: 2, thumb: 'cartridge' }
+          { name: 'HP Original High-Yield Black Print Cartridge', seller: 'Sold by: OfficeTech Direct (31.9% bad rate)', price: 78.90, qty: 1, icon: '🖨️' },
+          { name: 'HP Tri-Color Original Cartridge', seller: 'Sold by: InkSupply Pro', price: 89.90, qty: 2, icon: '🖨️' }
         ],
         groundTruth: {
           label: 1,
@@ -890,37 +790,8 @@
 
     // ─── UI Helper Functions ─────────────────────────────────────────
 
-    function getProductThumb(type) {
-      switch (type) {
-        case 'game':
-          return `<div class="product-thumb-box thumb-game" title="Gaming Accessory"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="6"></rect><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><circle cx="15.5" cy="12" r="1" fill="currentColor"></circle><circle cx="17.5" cy="10" r="1" fill="currentColor"></circle></svg></div>`;
-        case 'vinyl':
-          return `<div class="product-thumb-box thumb-vinyl" title="Vinyl Record LP"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6" stroke-dasharray="2 2"></circle><circle cx="12" cy="12" r="2" fill="currentColor"></circle></svg></div>`;
-        case 'fragrance':
-          return `<div class="product-thumb-box thumb-fragrance" title="Luxury Fragrance"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="8" width="12" height="13" rx="3"></rect><path d="M10 5h4v3h-4z"></path><path d="M9 3h6v2H9z"></path><circle cx="12" cy="14" r="2" fill="currentColor" opacity="0.6"></circle></svg></div>`;
-        case 'watch_chrono':
-          return `<div class="product-thumb-box thumb-watch1" title="Chronograph Dress Watch"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><polyline points="12 8 12 12 15 14"></polyline><path d="M9 4h6"></path><path d="M9 20h6"></path></svg></div>`;
-        case 'watch_bauhaus':
-          return `<div class="product-thumb-box thumb-watch2" title="Bauhaus Minimalist Watch"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="12" x2="12" y2="7"></line><line x1="12" y1="12" x2="16" y2="12"></line><circle cx="12" cy="12" r="1.5" fill="currentColor"></circle></svg></div>`;
-        case 'cartridge':
-          return `<div class="product-thumb-box thumb-cartridge" title="HP Print Cartridge"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="14" rx="2"></rect><path d="M6 18v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2"></path><circle cx="9" cy="10" r="1.5" fill="#38bdf8"></circle><circle cx="12" cy="10" r="1.5" fill="#f43f5e"></circle><circle cx="15" cy="10" r="1.5" fill="#eab308"></circle></svg></div>`;
-        default:
-          return `<div class="product-thumb-box thumb-game"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"></rect></svg></div>`;
-      }
-    }
-
-    function toggleAdvisor(forceState) {
-      const modal = document.getElementById('advisorModal');
-      const pillArrow = document.getElementById('advisorPillArrow');
-      const shouldOpen = (typeof forceState === 'boolean') ? forceState : !modal.classList.contains('open');
-
-      if (shouldOpen) {
-        modal.classList.add('open');
-        if (pillArrow) pillArrow.textContent = '▼ Close';
-      } else {
-        modal.classList.remove('open');
-        if (pillArrow) pillArrow.textContent = '▲ Inspect AI';
-      }
+    function toggleAdvisor() {
+      document.getElementById('advisorModal').classList.toggle('open');
     }
 
     function handlePaymentChange(method) {
@@ -993,7 +864,7 @@
         const row = document.createElement('div');
         row.className = 'order-item-row';
         row.innerHTML = `
-          ${getProductThumb(it.thumb)}
+          <div class="item-icon-box">${it.icon}</div>
           <div class="item-details">
             <div class="item-name">${it.name}</div>
             <div class="item-seller">${it.seller}</div>
@@ -1208,10 +1079,6 @@
     // ─── Initialize ──────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
       selectScenario('low');
-      // Auto-open AI risk inspector on desktop screens so judges immediately see model telemetry & scenarios
-      if (window.innerWidth >= 880) {
-        toggleAdvisor(true);
-      }
     });
   </script>
 </body>

@@ -78,22 +78,10 @@
 - **How I Verified**: Added `test_audit_log_endpoint` to [tests/test_api.py](file:///d:/Projects/Return%20Risk%20Scorer/tests/test_api.py) and confirmed that POSTing an order immediately populates `/audit-log` with the exact inputs and outputs.
 - **What I'd Do Next**: Route audit log streams asynchronously to Kafka / AWS Kinesis / ClickHouse for long-term compliance storage and drift monitoring.
 
----
+## 6. Vercel Serverless Function Artifact Bundling & Path Resolution
 
-## 6. [Placeholder for User]: Additional Incident / Fix Log
-
-- **Symptom**: *(Describe what broke or what error message appeared)*
-- **Root Cause**: *(Describe why it broke)*
-- **Fix**: *(Describe the code or config change made)*
-- **How I Verified**: *(Quote command line output or test results)*
-- **What I'd Do Next**: *(Describe future hardening steps)*
-
----
-
-## 7. [Placeholder for User]: Additional Incident / Fix Log
-
-- **Symptom**: *(Describe what broke or what error message appeared)*
-- **Root Cause**: *(Describe why it broke)*
-- **Fix**: *(Describe the code or config change made)*
-- **How I Verified**: *(Quote command line output or test results)*
-- **What I'd Do Next**: *(Describe future hardening steps)*
+- **Symptom**: When deploying the FastAPI application to Vercel serverless (`api/index.py`), cold starts failed with `FileNotFoundError: data/processed/model.joblib not found`, causing HTTP 500 errors on `/score`.
+- **Root Cause**: Vercel's serverless runtime isolates python handler execution bundles and does not package root-level workspace directories outside the handler tree (`/data/processed/`) unless bundled inside the package hierarchy or explicitly defined in `includeFiles`.
+- **Fix**: Bundled production inference artifacts (`model.joblib`, `reference_stats.json`, and `seller_prior_snapshot.csv`) directly within the package tree under [src/return_risk/data](file:///d:/Projects/Return%20Risk%20Scorer/src/return_risk/data), with robust multi-path fallback resolution in [api.py](file:///d:/Projects/Return%20Risk%20Scorer/src/return_risk/api.py).
+- **How I Verified**: Deployed to production on Vercel and validated that `https://razorpay-return-risk-scorer.vercel.app/health` returns `{"status": "healthy", "model_loaded": true}`, and verified live inference on `/score`.
+- **What I'd Do Next**: Set up an automated model sync step in CI/CD fetching versioned artifacts from an S3/Cloud Storage model registry rather than checking binary weights into git.

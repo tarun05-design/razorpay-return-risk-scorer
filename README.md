@@ -1,4 +1,4 @@
-# Return-Risk Scorer
+# Return-Risk Scorer & Magic Checkout Decision Engine
 
 ### Prevent RTO losses before they happen.
 

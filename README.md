@@ -71,31 +71,65 @@ A **sub-millisecond risk scoring and dynamic checkout policy engine** inspired b
 
 ## 🏗️ Architecture
 
-### 1. Data Pipeline & Offline Model Training Architecture
-![Return-Risk Scorer Architecture](architecture.png)
+The system is decoupled into two complementary architectures:
+1. **Real-Time Scoring & Dynamic Checkout Policy Engine** (Online / Sub-Millisecond Hot Path)
+2. **Data Pipeline & Offline Model Training Architecture** (Batch / Data Engineering & Training Lifecycle)
 
-### 2. Real-Time Scoring & Dynamic Checkout Policy Engine
-```
-[ Merchant Checkout / Frontend ]
-               │
-               ▼  POST /score (Order JSON: items, freight, sellers, customer state)
-┌────────────────────────────────────────────────────────────────────────┐
-│ FastAPI Sub-Millisecond Inference Engine (Avg Latency: 0.85 ms)        │
-│                                                                        │
-│  1. Feature Expansion (promised transit days, split-seller indicators) │
-│  2. O(1) Seller Prior Lookup (leak-free historical dispute rate)       │
-│  3. HistGradientBoostingClassifier predict_proba (calibrated)          │
-│  4. Rule-Based Explainable Reason Code Generator                       │
-│  5. Dynamic Action Policy Evaluator (Tier & Intervention Assignment)   │
-└────────────────────────────────────────────────────────────────────────┘
-               │
-               ▼  JSON Response: { risk_score, policy_tier, action, reason_codes }
-[ Dynamic Risk-Adaptive Checkout UX ]
-   ├── Tier 1 (Low): Unrestricted COD
-   ├── Tier 2 (Moderate): ₹50 UPI Discount banner applied
-   ├── Tier 3 (Elevated): Inline OTP/WhatsApp verification challenge
-   └── Tier 4 (Critical): COD payment disabled with transparent prepaid notice
-```
+---
+
+### 1. Real-Time Scoring & Dynamic Checkout Policy Engine
+
+![Real-Time Scoring & Dynamic Checkout Policy Engine](docs/architecture/scoring_and_dynamic_checkout_policy_engine.png)
+
+#### Online Hot-Path Execution Flow
+
+| Stage | Component | Latency / SLA | Role & Technical Implementation |
+| :--- | :--- | :--- | :--- |
+| **0. Cart Ingestion** | Storefront Checkout | `< 5 ms` | Captures order payload: item prices, quantities, product categories, freight costs, seller IDs, and destination state. |
+| **1. API Gateway** | `POST /score` (FastAPI) | **0.85 ms mean**<br>(p95: 1.20 ms) | High-throughput, sub-millisecond inference service satisfying payment gateway latency budgets (<50 ms). |
+| **2. Feature Expansion** | `features.py` | `< 0.20 ms` | Computes 21 tabular features: promised transit days, split-seller indicators, freight-to-price ratios, and interstate flags. |
+| **3. Seller Prior Lookup** | In-Memory Hash Map | **$O(1)$ (< 0.05 ms)** | Fast lookup of leak-free historical seller dispute rates from `seller_prior_snapshot.csv`. |
+| **4. Calibrated ML Model** | `HistGradientBoostingClassifier` | **< 0.50 ms** | Evaluates non-linear feature interactions with calibrated probabilities (`predict_proba`). **Zero slow LLMs in the hot path.** |
+| **5. Reason Generator** | Deterministic Engine | `< 0.10 ms` | Rule-based attribution translating top risk drivers into transparent, deterministic explanation codes. |
+| **6. Policy Evaluator** | Magic Checkout Policy Rules | `< 0.05 ms` | Evaluates calibrated probability against cost-optimized thresholds to assign the appropriate 4-tier checkout policy. |
+| **7. Dynamic Checkout UX** | Risk-Adaptive Storefront | Real-time | Intervenes seamlessly based on assigned tier: |
+
+- **Tier 1 · Low Risk (`< 0.30`) — `APPROVE_COD`**: Frictionless 1-click Cash on Delivery. Over **94.8%** of shoppers experience zero checkout friction.
+- **Tier 2 · Moderate Risk (`0.30 – 0.50`) — `NUDGE_PREPAID_UPI`**: Instant ₹50 UPI discount banner nudges shopper to switch from COD to prepaid, securing margins without hurting conversion.
+- **Tier 3 · Elevated Risk (`0.50 – 0.647`) — `REQUIRE_WHATSAPP_CONFIRMATION`**: Automated inline OTP / WhatsApp confirmation challenge filters uncommitted buyers on extended transit routes before freight is incurred.
+- **Tier 4 · Critical Risk (`≥ 0.647`) — `DISABLE_COD_PREPAID_ONLY`**: COD disabled with transparent prepaid notice, preventing 89.11% precision loss orders from draining merchant logistics budgets.
+
+> **Defense-Only Guarantee**: Evaluates strictly order geometry, transit duration, and seller reliability. **Zero buyer profiling, zero credit scraping, zero cross-merchant tracking.**
+
+---
+
+### 2. Data Pipeline & Offline Model Training Architecture
+
+![Data Pipeline and Offline Model Training Architecture](docs/architecture/data_pipeline_and_offline_model_training_architecture.png)
+
+#### Offline Data & Training Lifecycle
+
+1. **Multi-Table Relational Ingestion**: Ingests and joins 9 Brazilian Olist e-commerce tables (orders, order items, payments, reviews, products, sellers, geolocation).
+2. **Deterministic Label Builder**: 
+   - Derives return-risk proxy label: `canceled` OR `review_score <= 2`.
+   - Neutral reviews (`score = 3`) are dropped to eliminate label ambiguity.
+   - Cross-validated against **56.96× NLP keyword enrichment** in Portuguese customer dispute text.
+3. **Leakage-Safe Feature Engineering**: 
+   - Pre-computes 21 order, payment, and logistics features.
+   - Computes expanding-window historical seller dispute rates using *only* orders preceding the current order's purchase timestamp.
+4. **Time-Based Chronological Split**: 
+   - Strictly splits the dataset temporally: oldest 80% for training/validation, last 20% by purchase date for the held-out test set (17,711 orders).
+   - Prevents temporal data leakage and replicates forward production deployment.
+5. **Model Training**: 
+   - Trains `HistGradientBoostingClassifier` with native handling of categorical features and missing values (`NaN`).
+   - Calibrates output probabilities using validation folds.
+6. **Evaluation & Audit Suite**: 
+   - Computes ROC-AUC (0.6482), PR-AUC (0.2657, 2.37× over baseline), Brier calibration score, decile lift (2.49× in top decile), and cost-sensitive threshold sweeps.
+   - Generates publication-ready figures in `reports/figures/` and metrics in `reports/metrics.json`.
+7. **Artifact Export**: 
+   - Persists production artifacts: `model.joblib`, `seller_prior_snapshot.csv`, and `reference_stats.json`.
+
+---
 
 ### Deployment Architecture & Resiliency
 - **Backend Architecture**: Lightweight FastAPI service with `render.yaml` for Render, `Procfile` for Railway, and `api/index.py` for Vercel serverless.
@@ -364,6 +398,10 @@ curl -X POST localhost:8000/score -H "Content-Type: application/json" -d @sample
 │       ├── model.joblib              # Persisted HistGradientBoostingClassifier
 │       ├── reference_stats.json      # Validation statistics & thresholds
 │       └── seller_prior_snapshot.csv # Seller priors snapshot for O(1) inference
+├── docs/
+│   └── architecture/                 # System & data pipeline architecture diagrams
+│       ├── scoring_and_dynamic_checkout_policy_engine.png
+│       └── data_pipeline_and_offline_model_training_architecture.png
 ├── reports/
 │   ├── figures/                      # ROC, PR, calibration, decile lift, and tier plots
 │   ├── metrics.json                  # Complete audit report and evaluated metrics

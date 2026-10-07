@@ -85,3 +85,18 @@
 - **Fix**: Bundled production inference artifacts (`model.joblib`, `reference_stats.json`, and `seller_prior_snapshot.csv`) directly within the package tree under [src/return_risk/data](file:///d:/Projects/Return%20Risk%20Scorer/src/return_risk/data), with robust multi-path fallback resolution in [api.py](file:///d:/Projects/Return%20Risk%20Scorer/src/return_risk/api.py).
 - **How I Verified**: Deployed to production on Vercel and validated that `https://razorpay-return-risk-scorer.vercel.app/health` returns `{"status": "healthy", "model_loaded": true}`, and verified live inference on `/score`.
 - **What I'd Do Next**: Set up an automated model sync step in CI/CD fetching versioned artifacts from an S3/Cloud Storage model registry rather than checking binary weights into git.
+
+---
+
+## 7. Vercel `uv sync` Build System Resolution & Package Flag
+- **Symptom**: On pushing changes, Vercel's automated builder crashed with:
+  ```
+  Error: Failed to run "uv sync --active --no-dev --link-mode hardlink --locked --no-editable"
+  Failed to build 'razorpay-return-risk-scorer'
+  Failed to resolve requirements from 'build-system.requires'
+  No solution found when resolving: 'setuptools>=61.0' (operation timed out)
+  ```
+- **Root Cause**: Vercel upgraded its Python runtime builder to Astral's `uv`. When `uv` detected a `pyproject.toml` with `[build-system] requires = ["setuptools>=61.0"]`, it attempted to package the repository as an installable wheel, attempting to download `setuptools` from PyPI during the deployment step and timing out on the network request.
+- **Fix**: Configured `[tool.uv] package = false` and added `requires-python = ">=3.10"` in [pyproject.toml](file:///d:/Projects/Return%20Risk%20Scorer/pyproject.toml), removing the unnecessary `[build-system]` declaration so `uv` treats the repo as a standalone application instead of an installable package.
+- **How I Verified**: Tested local virtual environment resolution and pushed to GitHub for clean Vercel serverless deployment.
+- **What I'd Do Next**: Pin exact package hashes in a version-controlled `uv.lock` file for reproducible serverless deployments.

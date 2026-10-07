@@ -65,17 +65,6 @@
       display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600;
       padding: 4px 12px; border-radius: 20px; background: #1e293b; border: 1px solid #334155;
     }
-    .dashboard-nav-btn {
-      display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700;
-      padding: 5px 12px; border-radius: 20px;
-      background: linear-gradient(135deg, #1e3a8a, #0284c7); color: #fff; text-decoration: none;
-      border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 0 10px rgba(2, 132, 199, 0.25);
-      transition: all 0.15s ease;
-    }
-    .dashboard-nav-btn:hover {
-      transform: translateY(-1px); border-color: #38bdf8;
-      box-shadow: 0 0 14px rgba(2, 132, 199, 0.45); color: #fff;
-    }
     .status-dot {
       width: 8px; height: 8px; border-radius: 50%; background: var(--green);
       animation: pulseDot 2s infinite;
@@ -355,7 +344,6 @@
       .checkout-container { grid-template-columns: 1fr; }
       .order-summary-card { position: static; }
       .advisor-modal { width: calc(100vw - 30px); right: 15px; bottom: 70px; }
-      .dashboard-nav-btn span.btn-label { display: none; }
     }
   </style>
 </head>
@@ -370,16 +358,9 @@
         <span>Apex Goods</span>
         <span class="store-tag">Magic Checkout Demo</span>
       </a>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <a href="/dashboard" class="dashboard-nav-btn" title="View ML performance, empirical curves, and live audit logs">
-          <span>📊</span>
-          <span class="btn-label">Merchant Dashboard</span>
-          <span style="font-size: 11px; opacity: 0.8;">→</span>
-        </a>
-        <div class="api-status-pill" id="apiStatusPill">
-          <div class="status-dot" id="statusDot"></div>
-          <span id="apiStatusText">Connecting to /score…</span>
-        </div>
+      <div class="api-status-pill" id="apiStatusPill">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="apiStatusText">Connecting to /score…</span>
       </div>
     </div>
   </header>

@@ -192,6 +192,11 @@
       width: 52px; height: 52px; border-radius: 8px; background: #f1f5f9;
       display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
     }
+    .item-product-img {
+      width: 64px; height: 64px; border-radius: 8px; object-fit: cover;
+      background: #f8fafc; border: 1px solid var(--border); flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
     .item-details { flex: 1; }
     .item-name { font-size: 13px; font-weight: 600; color: var(--text); }
     .item-seller { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
@@ -628,13 +633,13 @@
     const API_BASE = urlParams.get('api') || window.API_BASE_OVERRIDE || '';
     const API_TIMEOUT_MS = 15000; // 15s to handle Render / free-tier cold starts
 
-    // ─── Four Real Held-Out Test Orders from Olist Test Set ─────────
+    // ─── Four Real Held-Out Test Orders with Realistic Retail Prices & Images ─────────
     const REAL_SCENARIOS = {
       low: {
         orderId: '0046176ff0dbc2a178b7885355dfbb71',
         title: 'Sony DualShock 4 / Gaming Accessory',
         items: [
-          { name: 'Sony PlayStation DualShock 4 Controller / Gaming Accessory', seller: 'Sold by: LevelUp Games (São Paulo)', price: 121.99, qty: 1, icon: '🎮' }
+          { name: 'Sony PlayStation DualShock 4 Wireless Controller', seller: 'Sold by: LevelUp Games (Bengaluru)', price: 3999.00, qty: 1, image: '/static/images/ps4_controller.jpg' }
         ],
         groundTruth: {
           label: 0,
@@ -668,8 +673,8 @@
         orderId: '99daacedd8423e3b5169338429be0110',
         title: 'Multi-Seller Bundle (Music Vinyl + Perfume)',
         items: [
-          { name: 'Collector Edition Vinyl Record LP', seller: 'Sold by: SoundGroove Records', price: 52.90, qty: 1, icon: '🎵' },
-          { name: 'Luxury Hydration Golden Fragrance (100ml)', seller: 'Sold by: BeautyAura Store', price: 129.50, qty: 1, icon: '✨' }
+          { name: 'Collector Edition Vinyl Record LP (180g Audiophile Pressing)', seller: 'Sold by: SoundGroove Records (Mumbai)', price: 1499.00, qty: 1, image: '/static/images/vinyl_record.jpg' },
+          { name: 'Luxury Hydration Golden Fragrance (100ml Eau de Parfum)', seller: 'Sold by: BeautyAura Store (Delhi)', price: 2499.00, qty: 1, image: '/static/images/luxury_perfume.jpg' }
         ],
         groundTruth: {
           label: 1,
@@ -706,8 +711,8 @@
         orderId: '64ccc97757023bd10bf48bed7f1e14e3',
         title: 'Two Designer Timepieces across Split Sellers',
         items: [
-          { name: 'Luxury Chronograph Dress Watch with Leather Strap', seller: 'Sold by: ChronoKing Store', price: 245.00, qty: 1, icon: '⌚' },
-          { name: 'Minimalist Bauhaus Quartz Watch (Matte Black)', seller: 'Sold by: TimeCraft Direct', price: 223.00, qty: 1, icon: '⌚' }
+          { name: 'Luxury Chronograph Dress Watch with Leather Strap', seller: 'Sold by: ChronoKing Store (Surat)', price: 5999.00, qty: 1, image: '/static/images/chrono_watch.jpg' },
+          { name: 'Minimalist Bauhaus Quartz Watch (Matte Black)', seller: 'Sold by: TimeCraft Direct (Jaipur)', price: 4299.00, qty: 1, image: '/static/images/minimalist_watch.jpg' }
         ],
         groundTruth: {
           label: 1,
@@ -746,8 +751,8 @@
         orderId: '24914fccbca3abf70528903ab2af4bf8',
         title: '3x HP Print Cartridges (High-Risk Seller & Split Sellers)',
         items: [
-          { name: 'HP Original High-Yield Black Print Cartridge', seller: 'Sold by: OfficeTech Direct (31.9% bad rate)', price: 78.90, qty: 1, icon: '🖨️' },
-          { name: 'HP Tri-Color Original Cartridge', seller: 'Sold by: InkSupply Pro', price: 89.90, qty: 2, icon: '🖨️' }
+          { name: 'HP Original High-Yield Black Print Cartridge', seller: 'Sold by: OfficeTech Direct (31.9% bad rate)', price: 899.00, qty: 1, image: '/static/images/hp_cartridges.jpg' },
+          { name: 'HP Tri-Color Original Cartridge', seller: 'Sold by: InkSupply Pro (Chennai)', price: 1099.00, qty: 2, image: '/static/images/hp_cartridges.jpg' }
         ],
         groundTruth: {
           label: 1,
@@ -864,11 +869,11 @@
         const row = document.createElement('div');
         row.className = 'order-item-row';
         row.innerHTML = `
-          <div class="item-icon-box">${it.icon}</div>
+          <img src="${it.image}" alt="${it.name}" class="item-product-img" onerror="this.onerror=null; this.src='/static/images/product_bottle.jpg';" />
           <div class="item-details">
             <div class="item-name">${it.name}</div>
             <div class="item-seller">${it.seller}</div>
-            <div class="item-pricing">₹${it.price.toFixed(2)} <span class="item-qty-tag">Qty: ${it.qty}</span></div>
+            <div class="item-pricing">₹${it.price.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span class="item-qty-tag">Qty: ${it.qty}</span></div>
           </div>
         `;
         itemsContainer.appendChild(row);
@@ -1037,8 +1042,8 @@
       }
 
       const total = Math.max(0, currentSubtotal - promotion);
-      document.getElementById('sumItems').textContent = `₹${currentSubtotal.toFixed(2)}`;
-      document.getElementById('sumTotal').textContent = `₹${total.toFixed(2)}`;
+      document.getElementById('sumItems').textContent = `₹${currentSubtotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      document.getElementById('sumTotal').textContent = `₹${total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
 
     // ─── Live Sample Tester ──────────────────────────────────────────

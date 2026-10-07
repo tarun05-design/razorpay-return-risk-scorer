@@ -568,15 +568,19 @@
         </div>
       </div>
       <div class="badges">
+        <a href="/checkout" class="badge" style="background: rgba(0, 102, 255, 0.25); color: #38bdf8; text-decoration: none; border-color: rgba(56, 189, 248, 0.4); font-weight: 700; transition: all 0.15s ease;">
+          <span>🛒</span>
+          <span>Interactive Checkout Demo →</span>
+        </a>
         <div class="badge">
           <span class="badge-dot"></span>
-          <span>Inference: &lt; 1ms (Sub-ms)</span>
+          <span>Inference: &lt; 1ms (0.85ms)</span>
         </div>
         <div class="badge badge-primary">
           <span>57× Proxy Enrichment Validated</span>
         </div>
         <div class="badge">
-          <span>Leakage-Free Time Split (Held-Out)</span>
+          <span>Leakage-Free Time Split (17,711 Test)</span>
         </div>
       </div>
     </header>
@@ -585,23 +589,23 @@
     <div class="metrics-bar">
       <div class="metric-card">
         <div class="metric-label">Held-Out ROC-AUC</div>
-        <div class="metric-val">0.647</div>
-        <div class="metric-sub">Rank Order Signal</div>
+        <div class="metric-val">0.648</div>
+        <div class="metric-sub">Rank Order Signal (17,711 Test Orders)</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">PR-AUC (Test Lift)</div>
-        <div class="metric-val">0.270</div>
-        <div class="metric-sub">2.4× over 11.2% Base Rate</div>
+        <div class="metric-val">0.266</div>
+        <div class="metric-sub">2.37× over 11.23% Base Rate</div>
       </div>
-      <div class="metric-card">
+      <div class="metric-card" style="border-color: rgba(0, 102, 255, 0.6);">
         <div class="metric-label">Cost-Optimal Cutoff</div>
-        <div class="metric-val">0.598</div>
-        <div class="metric-sub">Precision: 78.6% (114 TP / 31 FP)</div>
+        <div class="metric-val">0.647</div>
+        <div class="metric-sub">Precision: 89.11% (90 TP / 11 FP)</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Mean Probability Error</div>
-        <div class="metric-val">1.9%</div>
-        <div class="metric-sub">Calibrated: 0.131 vs 0.112</div>
+        <div class="metric-label">Mean Inference Latency</div>
+        <div class="metric-val">0.85 ms</div>
+        <div class="metric-sub">Deterministic Sub-ms Scoring</div>
       </div>
     </div>
 
@@ -704,8 +708,8 @@
             </div>
 
             <div class="form-group full-width">
-              <label>Merchant Flagging Threshold <span class="label-val" id="threshVal">0.598 (Cost-Optimal)</span></label>
-              <input type="range" id="threshold" min="0.10" max="0.90" step="0.01" value="0.598" oninput="updateVal('threshVal', this.value); triggerScore();" />
+              <label>Merchant Flagging Threshold <span class="label-val" id="threshVal">0.647 (Cost-Optimal)</span></label>
+              <input type="range" id="threshold" min="0.10" max="0.90" step="0.01" value="0.647" oninput="updateVal('threshVal', this.value); triggerScore();" />
             </div>
           </div>
         </form>
@@ -793,39 +797,39 @@
           <tbody>
             <tr>
               <td>0.300</td>
-              <td>1,368</td>
-              <td>31.4%</td>
-              <td>21.6%</td>
-              <td>430</td>
-              <td>938</td>
-              <td>-₹18,450.00</td>
+              <td>898</td>
+              <td>37.86%</td>
+              <td>17.09%</td>
+              <td>340</td>
+              <td>558</td>
+              <td>-R$ 9,184.03</td>
             </tr>
             <tr>
-              <td>0.500</td>
-              <td>260</td>
-              <td>63.8%</td>
-              <td>8.3%</td>
-              <td>166</td>
-              <td>94</td>
-              <td>-₹1,240.00</td>
+              <td>0.500 (Default)</td>
+              <td>235</td>
+              <td>62.13%</td>
+              <td>7.34%</td>
+              <td>146</td>
+              <td>89</td>
+              <td>-R$ 913.70</td>
             </tr>
-            <tr style="background: rgba(0, 102, 255, 0.15); font-weight:700;">
-              <td>0.598 (Cost-Optimal)</td>
-              <td>145</td>
-              <td>78.6%</td>
-              <td>5.7%</td>
-              <td>114</td>
-              <td>31</td>
-              <td>-₹89.55 (Breakeven @ 30% / +₹4,820 @ 40%)</td>
+            <tr style="background: rgba(0, 102, 255, 0.2); font-weight:700; border: 1px solid rgba(56, 189, 248, 0.4);">
+              <td>0.647 (Cost-Optimal Critical Cutoff)</td>
+              <td>101</td>
+              <td>89.11%</td>
+              <td>4.52%</td>
+              <td>90</td>
+              <td>11</td>
+              <td>+R$ 3,633.66 (Wilson 95%: 81.5%–93.8%)</td>
             </tr>
             <tr>
-              <td>0.700</td>
-              <td>32</td>
-              <td>84.4%</td>
-              <td>1.4%</td>
-              <td>27</td>
-              <td>5</td>
-              <td>+₹210.00</td>
+              <td>0.721</td>
+              <td>80</td>
+              <td>97.50%</td>
+              <td>3.92%</td>
+              <td>78</td>
+              <td>2</td>
+              <td>-R$ 731.12</td>
             </tr>
           </tbody>
         </table>
@@ -965,7 +969,7 @@ curl -X POST http://localhost:8000/score \
       const payment = document.getElementById('payment_type').value;
       const custState = document.getElementById('customer_state').value;
       const selState = document.getElementById('seller_state').value;
-      const threshold = parseFloat(document.getElementById('threshold').value) || 0.598;
+      const threshold = parseFloat(document.getElementById('threshold').value) || 0.647;
 
       const payload = {
         order_purchase_timestamp: "2018-06-15 14:30:00",
@@ -1019,17 +1023,20 @@ curl -X POST http://localhost:8000/score \
       const gaugeFill = document.getElementById('gaugeFill');
       gaugeFill.style.transform = `rotate(${angle}deg)`;
 
-      let color = '#10b981';
-      let tierLabel = 'Low Return Risk';
-      if (prob >= 0.70) {
+      const action = data.action || {};
+      const tier = action.risk_tier || 'low';
+      let color = action.badge_color || '#10b981';
+      let tierLabel = 'Low Return Risk — Unrestricted COD';
+
+      if (tier === 'critical' || prob >= 0.647) {
         color = '#ef4444';
-        tierLabel = 'Critical Risk — Gate COD';
-      } else if (prob >= 0.50) {
+        tierLabel = 'Critical Risk — Gate COD (Prepaid Only)';
+      } else if (tier === 'elevated' || prob >= 0.50) {
         color = '#f59e0b';
-        tierLabel = 'Elevated Risk — Verification Required';
-      } else if (prob >= 0.30) {
+        tierLabel = 'Elevated Risk — WhatsApp/OTP Verification';
+      } else if (tier === 'moderate' || prob >= 0.30) {
         color = '#38bdf8';
-        tierLabel = 'Moderate Risk — Nudge Prepaid UPI';
+        tierLabel = 'Moderate Risk — Nudge ₹50 UPI Discount';
       }
 
       gaugeFill.style.borderColor = `${color} transparent transparent ${color}`;

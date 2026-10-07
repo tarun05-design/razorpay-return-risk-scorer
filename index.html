@@ -593,17 +593,17 @@
       position: fixed;
       bottom: 75px;
       right: 20px;
-      width: 440px;
-      max-width: calc(100vw - 40px);
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      width: 480px;
+      max-width: calc(100vw - 32px);
+      background: #ffffff;
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.04);
       z-index: 910;
       display: none;
       flex-direction: column;
       overflow: hidden;
-      animation: slideUp 0.25s ease;
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .advisor-modal.open {
@@ -623,240 +623,463 @@
     }
 
     .advisor-modal-header {
-      background: #0f172a;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       color: #fff;
-      padding: 14px 18px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .advisor-modal-title {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       display: flex;
       align-items: center;
       gap: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .advisor-header-tag {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 999px;
+      margin-left: 2px;
     }
 
     .close-modal-btn {
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
       cursor: pointer;
+      transition: all 0.15s;
     }
 
     .close-modal-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
       color: #fff;
     }
 
     .advisor-modal-body {
-      padding: 16px;
-      max-height: 70vh;
+      padding: 14px 16px;
+      max-height: calc(85vh - 55px);
       overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
+    }
+
+    .advisor-modal-body::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .advisor-modal-body::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    /* SCENARIO SELECTOR (COMPACT 2x2 GRID) */
+    .scenario-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
     }
 
     .scenario-selector-title {
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--text-secondary);
-      margin-bottom: 8px;
+    }
+
+    .scenario-badge-hint {
+      font-size: 10px;
+      color: var(--text-subtle);
+      font-weight: 500;
     }
 
     .scenario-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-bottom: 12px;
     }
 
     .scenario-btn {
       background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 9px;
+      padding: 8px 10px;
       text-align: left;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.15s ease;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 3px;
+      position: relative;
     }
 
     .scenario-btn:hover {
       background: #f1f5f9;
       border-color: #cbd5e1;
+      transform: translateY(-1px);
     }
 
     .scenario-btn.active {
-      background: var(--accent-light);
-      border-color: var(--accent);
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .scenario-btn.active#btn-low {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    .scenario-btn.active#btn-moderate {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+
+    .scenario-btn.active#btn-elevated {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
+
+    .scenario-btn.active#btn-critical {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .sc-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .sc-tier-pill {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    .sc-risk-pct {
+      font-size: 11px;
+      font-weight: 800;
     }
 
     .sc-title {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
-      color: var(--text);
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .sc-sub {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-
-    .sc-badge {
       font-size: 10px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 4px;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Live Inference Card */
+    /* INFERENCE RESULT CARD */
     .inference-card {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     }
 
     .inference-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .inference-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748b;
     }
 
     .score-badge {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
-      padding: 3px 10px;
+      padding: 3px 9px;
       border-radius: 6px;
+      letter-spacing: -0.01em;
     }
 
-    .policy-action-box {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
+    /* Visual Risk Gauge Meter */
+    .risk-meter-container {
       margin-bottom: 10px;
     }
 
+    .risk-meter-track {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .risk-meter-fill {
+      height: 100%;
+      width: 6%;
+      border-radius: 999px;
+      background: #10b981;
+      transition: width 0.35s ease, background 0.35s ease;
+    }
+
+    .risk-meter-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+
+    /* Dynamic Policy Action Box */
+    .policy-action-box {
+      border-radius: 8px;
+      padding: 9px 12px;
+      margin-bottom: 10px;
+      border: 1px solid #e2e8f0;
+      border-left-width: 4px;
+      background: #f8fafc;
+      transition: all 0.2s ease;
+    }
+
+    .policy-action-box.tier-low {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      border-left-color: #10b981;
+    }
+
+    .policy-action-box.tier-moderate {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      border-left-color: #3b82f6;
+    }
+
+    .policy-action-box.tier-elevated {
+      background: #fffbeb;
+      border-color: #fde68a;
+      border-left-color: #f59e0b;
+    }
+
+    .policy-action-box.tier-critical {
+      background: #fef2f2;
+      border-color: #fecaca;
+      border-left-color: #ef4444;
+    }
+
     .policy-action-name {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
+      color: #0f172a;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
     .policy-action-desc {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 4px;
+      font-size: 11px;
+      color: #475569;
+      margin-top: 3px;
       line-height: 1.4;
     }
 
+    /* Reason Codes */
     .reasons-box {
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .reasons-title {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      color: var(--text-subtle);
-      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 5px;
     }
 
     .reasons-list {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
 
-    .reasons-list li {
-      font-size: 12px;
-      color: var(--text);
+    .reason-item {
+      font-size: 11px;
+      color: #1e293b;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 5px 8px;
       display: flex;
       align-items: flex-start;
       gap: 6px;
+      line-height: 1.35;
     }
 
-    .reasons-list li::before {
-      content: "•";
-      color: var(--accent);
-      font-weight: 700;
+    .reason-icon {
+      font-size: 10px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* Held-out Ground Truth Card */
+    .reason-icon.low {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .reason-icon.moderate {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .reason-icon.elevated {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .reason-icon.critical {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* Ground Truth Card */
     .ground-truth-card {
-      background: #f1f5f9;
-      border-left: 3px solid #64748b;
-      border-radius: 0 8px 8px 0;
-      padding: 10px 12px;
-      font-size: 12px;
-      margin-top: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 9px 11px;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+
+    .gt-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
     }
 
     .gt-title {
       font-weight: 700;
       color: #1e293b;
-      margin-bottom: 2px;
+      font-size: 11px;
+    }
+
+    .gt-outcome-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1.5px 6px;
+      border-radius: 4px;
+    }
+
+    .gt-outcome-badge.clean {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .gt-outcome-badge.return {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .gt-outcome-text {
+      color: #334155;
+      line-height: 1.35;
+      font-size: 10.5px;
     }
 
     .gt-review {
       font-style: italic;
-      color: #475569;
+      color: #64748b;
       margin-top: 4px;
-      font-size: 11px;
-      line-height: 1.4;
+      font-size: 10px;
+      line-height: 1.35;
+      padding-top: 4px;
+      border-top: 1px dashed #e2e8f0;
     }
 
     /* Live Tester Card */
     .tester-card {
-      border-top: 1px solid var(--border);
-      padding-top: 12px;
-      margin-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      margin-top: 10px;
     }
 
     .tester-btn {
       width: 100%;
-      background: #059669;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 0;
-      font-size: 12px;
-      font-weight: 700;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      border-radius: 7px;
+      padding: 7px 0;
+      font-size: 11px;
+      font-weight: 600;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
     }
 
     .tester-btn:hover {
-      background: #047857;
+      background: #1e293b;
+      color: #38bdf8;
+      border-color: #475569;
     }
 
     .tester-output {
       display: none;
-      margin-top: 8px;
+      margin-top: 7px;
       background: #0f172a;
       color: #38bdf8;
-      padding: 10px;
+      padding: 9px;
       border-radius: 6px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      max-height: 150px;
+      font-size: 10.5px;
+      max-height: 140px;
       overflow-y: auto;
       white-space: pre-wrap;
     }
@@ -1112,48 +1335,57 @@
     <div class="advisor-modal-header">
       <div class="advisor-modal-title">
         <span>🛡️ Razorpay AI Risk Manager</span>
+        <span class="advisor-header-tag">Track 02 Evaluator</span>
       </div>
       <button class="close-modal-btn" onclick="toggleAdvisor()">✕</button>
     </div>
     <div class="advisor-modal-body">
 
-      <!-- SCENARIO SWITCHER (REAL TEST ORDERS) -->
-      <div class="scenario-selector-title">Select Held-Out Test Order (Illustrative Examples):</div>
-      <div style="font-size:11px; color:var(--text-secondary); margin-bottom:10px; line-height:1.4;">
-        <em>Note: The four orders below are illustrative test orders drawn from the Olist held-out test set; the full
-          statistical evaluation across all 17,711 held-out test orders provides the real evidence.</em>
+      <!-- SCENARIO SWITCHER (COMPACT 2x2 GRID) -->
+      <div class="scenario-header-row">
+        <span class="scenario-selector-title">Held-Out Test Scenarios</span>
+        <span class="scenario-badge-hint">Olist N=17,711 Benchmark</span>
       </div>
+
       <div class="scenario-grid">
+        <!-- 1. Low Risk -->
         <button class="scenario-btn active" id="btn-low" onclick="selectScenario('low')">
-          <div>
-            <div class="sc-title">1. Order #004617 (Low Risk)</div>
-            <div class="sc-sub">Single item · Clean delivery · 5-star review</div>
+          <div class="sc-top">
+            <span class="sc-tier-pill" style="background:#ecfdf5; color:#059669;">Tier 1 · Low</span>
+            <span class="sc-risk-pct" style="color:#059669;">6%</span>
           </div>
-          <span class="sc-badge" style="background:#ecfdf5; color:#059669;">Tier 1: Approve COD</span>
+          <div class="sc-title">#004617 · Single Item</div>
+          <div class="sc-sub">Clean delivery · 5★ review</div>
         </button>
 
+        <!-- 2. Moderate Risk -->
         <button class="scenario-btn" id="btn-moderate" onclick="selectScenario('moderate')">
-          <div>
-            <div class="sc-title">2. Order #99daac (Moderate Risk)</div>
-            <div class="sc-sub">Split sellers · Review reports missing parcel</div>
+          <div class="sc-top">
+            <span class="sc-tier-pill" style="background:#eff6ff; color:#2563eb;">Tier 2 · Moderate</span>
+            <span class="sc-risk-pct" style="color:#2563eb;">46%</span>
           </div>
-          <span class="sc-badge" style="background:#eff6ff; color:#2563eb;">Tier 2: UPI Nudge</span>
+          <div class="sc-title">#99daac · Split Sellers</div>
+          <div class="sc-sub">2 items · Missing parcel report</div>
         </button>
 
+        <!-- 3. Elevated Risk -->
         <button class="scenario-btn" id="btn-elevated" onclick="selectScenario('elevated')">
-          <div>
-            <div class="sc-title">3. Order #64ccc9 (Elevated Risk)</div>
-            <div class="sc-sub">45-day transit · Filters buyers unwilling to wait</div>
+          <div class="sc-top">
+            <span class="sc-tier-pill" style="background:#fffbeb; color:#d97706;">Tier 3 · Elevated</span>
+            <span class="sc-risk-pct" style="color:#d97706;">54%</span>
           </div>
-          <span class="sc-badge" style="background:#fffbeb; color:#d97706;">Tier 3: OTP Verify</span>
+          <div class="sc-title">#64ccc9 · Long Transit</div>
+          <div class="sc-sub">45-day window · High drop-off</div>
         </button>
 
+        <!-- 4. Critical Risk -->
         <button class="scenario-btn" id="btn-critical" onclick="selectScenario('critical')">
-          <div>
-            <div class="sc-title">4. Order #24914f (Critical Risk)</div>
-            <div class="sc-sub">Review reports return request (cartridges)</div>
+          <div class="sc-top">
+            <span class="sc-tier-pill" style="background:#fef2f2; color:#dc2626;">Tier 4 · Critical</span>
+            <span class="sc-risk-pct" style="color:#dc2626;">72%</span>
           </div>
-          <span class="sc-badge" style="background:#fef2f2; color:#dc2626;">Tier 4: COD Restricted</span>
+          <div class="sc-title">#24914f · High-Loss Seller</div>
+          <div class="sc-sub">31.9% seller loss · Return filed</div>
         </button>
       </div>
 
@@ -1164,22 +1396,41 @@
           <span class="score-badge" id="advScoreBadge">Scoring…</span>
         </div>
 
-        <div class="policy-action-box">
+        <!-- Dynamic Risk Meter Bar -->
+        <div class="risk-meter-container">
+          <div class="risk-meter-track">
+            <div class="risk-meter-fill" id="advRiskMeterFill" style="width: 6%; background: #10b981;"></div>
+          </div>
+          <div class="risk-meter-labels">
+            <span>0% Safe</span>
+            <span>15% Low</span>
+            <span>50% Moderate</span>
+            <span>70% Critical</span>
+          </div>
+        </div>
+
+        <div class="policy-action-box tier-low" id="advPolicyBox">
           <div class="policy-action-name" id="advActionName">Evaluating action policy…</div>
           <div class="policy-action-desc" id="advActionDesc">Connecting to backend /score endpoint…</div>
         </div>
 
         <div class="reasons-box">
-          <div class="reasons-title">Explainable Reason Codes:</div>
+          <div class="reasons-title">Explainable Reason Codes (Risk Drivers):</div>
           <ul class="reasons-list" id="advReasonsList">
-            <li>Evaluating features…</li>
+            <li class="reason-item">
+              <span class="reason-icon low">✓</span>
+              <span>Evaluating features…</span>
+            </li>
           </ul>
         </div>
 
         <!-- Real Ground Truth Verification -->
         <div class="ground-truth-card" id="groundTruthCard">
-          <div class="gt-title" id="gtTitle">Held-Out Test Outcome</div>
-          <div id="gtOutcomeText">Ground truth label from held-out test set</div>
+          <div class="gt-header-row">
+            <span class="gt-title" id="gtTitle">Held-Out Test Order #0046176f:</span>
+            <span class="gt-outcome-badge clean" id="gtOutcomeBadge">✓ Clean Delivery</span>
+          </div>
+          <div class="gt-outcome-text" id="gtOutcomeText">Ground truth label from held-out test set</div>
           <div class="gt-review" id="gtReviewText"></div>
         </div>
       </div>
@@ -1466,9 +1717,15 @@
       if (countEl) countEl.textContent = totalQty;
 
       // Update Ground Truth Card
-      document.getElementById('gtTitle').textContent = `Held-Out Test Order #${sc.orderId.slice(0, 8)}:`;
+      document.getElementById('gtTitle').textContent = `Held-Out Order #${sc.orderId.slice(0, 8)}:`;
       document.getElementById('gtOutcomeText').textContent = sc.groundTruth.summary;
       document.getElementById('gtReviewText').textContent = sc.groundTruth.review;
+      const gtBadge = document.getElementById('gtOutcomeBadge');
+      if (gtBadge) {
+        const isClean = sc.groundTruth.label === 0;
+        gtBadge.textContent = isClean ? '✓ Clean Delivery' : '✕ Return / Loss';
+        gtBadge.className = 'gt-outcome-badge ' + (isClean ? 'clean' : 'return');
+      }
 
       // Set Loading State
       setAdvisorLoadingState();
@@ -1497,6 +1754,11 @@
       badge.style.background = '#f1f5f9';
       badge.style.color = '#64748b';
       advisorPillLabel.textContent = 'Return Risk: Scoring…';
+      const meterFill = document.getElementById('advRiskMeterFill');
+      if (meterFill) {
+        meterFill.style.width = '25%';
+        meterFill.style.background = '#94a3b8';
+      }
     }
 
     function handleApiSuccess(data) {
@@ -1528,12 +1790,19 @@
 
       // Update Advisor Header & Badge
       const badge = document.getElementById('advScoreBadge');
-      const scoreColor = tier === 'low' ? '#10b981' : tier === 'moderate' ? '#3b82f6' : tier === 'elevated' ? '#f59e0b' : '#ef4444';
+      const scoreColor = tier === 'low' ? '#10b981' : tier === 'moderate' ? '#2563eb' : tier === 'elevated' ? '#d97706' : '#dc2626';
       const scoreBg = tier === 'low' ? '#ecfdf5' : tier === 'moderate' ? '#eff6ff' : tier === 'elevated' ? '#fffbeb' : '#fef2f2';
 
       badge.textContent = `${scorePct}% (${tier.toUpperCase()})`;
       badge.style.background = scoreBg;
       badge.style.color = scoreColor;
+
+      // Update Risk Meter Bar
+      const meterFill = document.getElementById('advRiskMeterFill');
+      if (meterFill) {
+        meterFill.style.width = `${Math.min(100, Math.max(5, scorePct))}%`;
+        meterFill.style.background = scoreColor;
+      }
 
       // Floating button update
       document.getElementById('advisorPillLabel').textContent = `Return Risk: ${scorePct}% (${tier.toUpperCase()})`;
@@ -1542,13 +1811,19 @@
       // Action Title & Desc
       document.getElementById('advActionName').textContent = action.action_title || 'Dynamic Policy Action';
       document.getElementById('advActionDesc').textContent = action.action_description || '';
+      const policyBox = document.getElementById('advPolicyBox');
+      if (policyBox) {
+        policyBox.className = `policy-action-box tier-${tier}`;
+      }
 
       // Reason Codes
       const reasonsList = document.getElementById('advReasonsList');
       reasonsList.innerHTML = '';
+      const iconChar = tier === 'low' ? '✓' : tier === 'moderate' ? 'ℹ' : '⚠';
       (result.reason_codes || []).forEach(rc => {
         const li = document.createElement('li');
-        li.textContent = rc;
+        li.className = 'reason-item';
+        li.innerHTML = `<span class="reason-icon ${tier}">${iconChar}</span><span>${rc}</span>`;
         reasonsList.appendChild(li);
       });
 

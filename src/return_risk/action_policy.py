@@ -56,24 +56,25 @@ def evaluate_action_policy(
     risk_score: float,
     total_price: float = 100.0,
     total_freight: float = 20.0,
-    cost_optimal_threshold: float = 0.598,
+    cost_optimal_threshold: float = 0.647,
     intervention_cost: float = 25.0,
     intervention_success_rate: float = 0.30,
 ) -> PolicyAction:
     """
-    Evaluates policy tiers based on calibrated probability and merchant unit economics:
+    Evaluates policy tiers based on calibrated probability and merchant unit economics
+    (all monetary calculations canonically in R$ / Brazilian Real):
 
     - Tier 1 (risk < 0.30): APPROVE_COD
       Low risk. 1-click frictionless checkout.
 
     - Tier 2 (0.30 <= risk < 0.50): NUDGE_PREPAID_UPI
-      Moderate risk. Offer dynamic 5% / ₹50 discount to convert COD to prepaid UPI,
+      Moderate risk. Offer dynamic 5% / prepaid discount incentive to convert COD to prepaid,
       eliminating RTO risk at point of sale.
 
-    - Tier 3 (0.50 <= risk < cost_optimal_threshold or 0.70): REQUIRE_WHATSAPP_CONFIRMATION
+    - Tier 3 (0.50 <= risk < cost_optimal_threshold [0.647]): REQUIRE_WHATSAPP_CONFIRMATION
       Elevated risk. Trigger automated WhatsApp/SMS interactive address & delivery intent check.
 
-    - Tier 4 (risk >= cost_optimal_threshold): DISABLE_COD_PREPAID_ONLY
+    - Tier 4 (risk >= cost_optimal_threshold [0.647]): DISABLE_COD_PREPAID_ONLY
       High risk. Restrict payment method to prepaid to guard reverse logistics margin.
     """
     potential_loss = compute_order_loss(total_price, total_freight)
@@ -101,10 +102,10 @@ def evaluate_action_policy(
         return PolicyAction(
             action_code="NUDGE_PREPAID_UPI",
             action_title="Nudge Prepaid (UPI / Card Discount)",
-            action_description="Moderate return risk. Offer instant ₹50 / 5% UPI discount to convert COD into prepaid.",
+            action_description="Moderate return risk. Offer dynamic prepaid discount incentive to convert COD into prepaid.",
             risk_tier="moderate",
             badge_color="#3b82f6",  # blue-500
-            recommended_intervention="Dynamic UPI Incentive at Magic Checkout",
+            recommended_intervention="Dynamic UPI / Prepaid Incentive at Checkout",
             potential_order_loss=potential_loss,
             expected_savings=expected_savings,
             merchant_notes=[
@@ -114,7 +115,7 @@ def evaluate_action_policy(
         )
 
     elif risk_score < cost_optimal_threshold:
-        # Automated WhatsApp confirmation costs ~₹1-2, saves ~30% of cancellations
+        # Automated WhatsApp confirmation costs ~R$ 2.0 (scaled), saves ~30% of cancellations
         expected_savings = (potential_loss * intervention_success_rate) - intervention_cost
         return PolicyAction(
             action_code="REQUIRE_WHATSAPP_CONFIRMATION",
